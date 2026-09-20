@@ -1,8 +1,26 @@
-html, body { margin: 0; height: 100%; overflow: hidden; font-family: 'Source Sans 3', system-ui, sans-serif; background: #050814; }
-.app-shell { padding: 0 !important; width: 100vw; min-height: 100vh; }
-.stage { width: 100vw !important; height: 100vh !important; max-width: none !important; aspect-ratio: auto !important; background: #071018; }
-#svg-mount, #svg-mount svg { width: 100%; height: 100%; }
-#svg-mount svg.painted-mode > g { opacity: 1; }
+html, body {
+  margin: 0; height: 100%; overflow: hidden;
+  font-family: 'Source Sans 3', system-ui, sans-serif;
+  background:
+    radial-gradient(circle at 82% 18%, #3a4a6a 0%, transparent 18%),
+    linear-gradient(180deg, #0b1a38 0%, #0a1630 42%, #071018 100%);
+}
+.app-shell { padding: 0 !important; width: 100vw; min-height: 100vh; background: transparent; }
+.stage {
+  width: 100vw !important; height: 100vh !important; max-width: none !important; aspect-ratio: auto !important;
+  background:
+    radial-gradient(circle at 82% 16%, rgba(210,220,240,.35) 0 2%, transparent 8%),
+    radial-gradient(circle at 12% 22%, rgba(180,200,230,.12) 0 1%, transparent 6%),
+    linear-gradient(180deg, #102044 0%, #0b1a38 40%, #081224 100%);
+}
+#svg-mount { position: absolute; inset: 0; }
+#svg-mount svg {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  object-fit: cover;
+  object-position: center 42%;
+}
 
 .scorecard-hero { position: absolute; top: 1.2%; left: 50%; transform: translateX(-50%); z-index: 10; text-align: center; pointer-events: none; width: 80%; }
 .scorecard-title { margin: 0; font-family: Cinzel, Georgia, serif; font-weight: 700; font-size: clamp(26px, 3.2vw, 52px); letter-spacing: .04em; color: #f3d48a; display: flex; align-items: center; justify-content: center; gap: 16px; }
