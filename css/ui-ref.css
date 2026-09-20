@@ -14,13 +14,7 @@ html, body {
     linear-gradient(180deg, #102044 0%, #0b1a38 40%, #081224 100%);
 }
 #svg-mount { position: absolute; inset: 0; }
-#svg-mount svg {
-  width: 100% !important;
-  height: 100% !important;
-  display: block;
-  object-fit: cover;
-  object-position: center 42%;
-}
+#svg-mount svg { width: 100% !important; height: 100% !important; display: block; object-fit: cover; object-position: center 42%; }
 
 .scorecard-hero { position: absolute; top: 1.2%; left: 50%; transform: translateX(-50%); z-index: 10; text-align: center; pointer-events: none; width: 80%; }
 .scorecard-title { margin: 0; font-family: Cinzel, Georgia, serif; font-weight: 700; font-size: clamp(26px, 3.2vw, 52px); letter-spacing: .04em; color: #f3d48a; display: flex; align-items: center; justify-content: center; gap: 16px; }
@@ -32,8 +26,21 @@ html, body {
 .focus-icon { width: 18px; height: 18px; color: #e7c37a; display: grid; place-items: center; }
 .focus-icon svg { width: 16px; height: 16px; }
 
-.grid-col-label { background: #152036; border: 1.5px solid #d4b36a; border-radius: 4px; padding: 6px 8px !important; transform: translate(-50%, -108%); width: auto !important; max-width: 14% !important; white-space: nowrap !important; }
-.grid-col-kicker { display: none !important; }
+.grid-col-label {
+  background: #152036; border: 1.5px solid #d4b36a; border-radius: 6px;
+  padding: 4px 8px 5px !important; transform: translate(-50%, -108%);
+  width: auto !important; max-width: 14% !important; white-space: nowrap !important;
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+}
+.grid-col-kicker {
+  display: block !important;
+  font-size: 8px !important;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(243,230,194,.8);
+  line-height: 1;
+}
 .grid-col-name { font-size: 11px !important; font-weight: 700; color: #f4f7fb; }
 .grid-row-label { display: none !important; }
 
