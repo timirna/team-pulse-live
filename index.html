@@ -8,14 +8,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css?v=39-visual">
-  <link rel="stylesheet" href="css/ui-ref.css?v=6">
+  <link rel="stylesheet" href="css/ui-ref.css?v=7">
 </head>
 <body>
   <div class="app-shell">
     <div class="stage" id="stage">
-      <div id="svg-mount" aria-hidden="false" role="img" aria-label="Illustrated stained-glass house that lights up to reveal survey results"></div>
+      <div id="svg-mount" aria-hidden="false" role="img" aria-label="Trust Survey Scorecard house"></div>
       <div id="vignette" aria-hidden="true"></div>
-      <header class="scorecard-hero" aria-label="Trust Survey Scorecard">
+      <header class="scorecard-hero">
         <div class="scorecard-kicker">Department Confidence Snapshot</div>
         <h1 class="scorecard-title">Trust Survey Scorecard</h1>
       </header>
@@ -27,16 +27,16 @@
         <div id="rose-words-wrap"><div id="rose-words"></div></div>
         <div id="sunburst-rays" aria-hidden="true"></div>
         <div id="particle-container" aria-hidden="true"></div>
-        <div id="grid-labels" aria-label="Team labels on the window grid"></div>
+        <div id="grid-labels"></div>
       </div>
-      <aside class="focus-panel" id="focus-panel" aria-label="Explore focus areas"></aside>
+      <aside class="focus-panel" id="focus-panel"></aside>
       <div class="qr-stand" id="qr-stand">
         <div class="qr-stand-board">
           <div class="qr-stand-heading">Scan to<br>Take the Survey</div>
-          <div id="qr-container" role="link" tabindex="0" aria-label="QR code linking to the survey form"></div>
+          <div id="qr-container" role="link" tabindex="0"></div>
         </div>
       </div>
-      <div id="score-color-guide" aria-label="Score color guide, 1 to 5"></div>
+      <div id="score-color-guide"></div>
       <div class="stage-controls">
         <div class="controls">
           <button id="btn-play" disabled>Play Reveal</button>
@@ -45,22 +45,22 @@
         </div>
         <div class="status-strip">
           <div id="status-line">Click “Play Reveal” to begin.</div>
-          <div id="data-source-status" aria-live="polite">&nbsp;</div>
+          <div id="data-source-status" class="hidden"></div>
           <div id="mock-warning" class="hidden"></div>
-          <div id="mapping-warning" class="hidden" role="alert"></div>
-          <div id="error-message" class="hidden" role="alert"></div>
+          <div id="mapping-warning" class="hidden"></div>
+          <div id="error-message" class="hidden"></div>
         </div>
       </div>
-      <div id="flash-overlay" aria-hidden="true"></div>
+      <div id="flash-overlay"></div>
       <div id="loading-state">
-        <div class="spinner" aria-hidden="true"></div>
+        <div class="spinner"></div>
         <div class="loading-text">Loading illustration&hellip;</div>
       </div>
     </div>
   </div>
   <script src="js/vendor/qrcode.js?v=1"></script>
   <script src="js/config.js?v=20260920-matchref"></script>
-  <script src="js/ui-ref.js?v=6"></script>
+  <script src="js/ui-ref.js?v=7"></script>
   <script src="js/colorutils.js?v=4"></script>
   <script src="js/mockdata.js?v=4"></script>
   <script src="js/datasource.js?v=3"></script>
