@@ -1,61 +1,58 @@
 html, body { margin: 0; height: 100%; overflow: hidden; font-family: 'Source Sans 3', system-ui, sans-serif; background: #050814; }
-.app-shell { padding: 0 !important; min-height: 100vh; width: 100vw; }
-.stage { width: 100vw !important; max-width: none !important; height: 100vh !important; aspect-ratio: auto !important; border-radius: 0; border: 0; box-shadow: none; }
+.app-shell { padding: 0 !important; width: 100vw; min-height: 100vh; }
+.stage { width: 100vw !important; height: 100vh !important; max-width: none !important; aspect-ratio: auto !important; }
 #svg-mount, #svg-mount svg { width: 100%; height: 100%; }
 
-.scorecard-hero {
-  position: absolute; top: 1.6%; left: 50%; transform: translateX(-50%);
-  z-index: 10; text-align: center; pointer-events: none;
-  text-shadow: 0 8px 24px rgba(0,0,0,.55);
-}
+.scorecard-hero { position: absolute; top: 1.2%; left: 50%; transform: translateX(-50%); z-index: 10; text-align: center; pointer-events: none; width: 80%; }
 .scorecard-title {
   margin: 0; font-family: Cinzel, Georgia, serif; font-weight: 700;
-  font-size: clamp(28px, 3.4vw, 54px); letter-spacing: 0.04em; color: #f3d48a;
+  font-size: clamp(26px, 3.2vw, 52px); letter-spacing: .04em; color: #f3d48a;
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+}
+.scorecard-title::before, .scorecard-title::after {
+  content: ''; width: 72px; height: 2px;
+  background: linear-gradient(90deg, transparent, #e7c37a, transparent);
 }
 .scorecard-kicker {
-  font-family: 'Source Sans 3', system-ui, sans-serif; font-weight: 700;
-  font-size: clamp(10px, 0.9vw, 14px); letter-spacing: 0.28em; text-transform: uppercase;
-  color: #d7c39a; margin-bottom: 4px;
+  font-weight: 700; font-size: clamp(10px, .85vw, 13px);
+  letter-spacing: .32em; text-transform: uppercase; color: #d7c39a; margin-bottom: 2px;
 }
 
-.focus-panel { position: absolute; left: 1.2%; top: 34%; width: 168px; z-index: 8; padding: 0; background: transparent; border: 0; }
-.focus-title { display: none !important; }
+.focus-panel { position: absolute; left: 1.1%; top: 33%; width: 172px; z-index: 8; }
 .focus-item {
   display: flex; align-items: center; gap: 10px;
-  padding: 8px 12px; margin-bottom: 8px; border-radius: 10px;
-  color: #f4f7ff; background: linear-gradient(180deg, #1b2a46, #121b30);
+  padding: 8px 12px; margin-bottom: 8px; border-radius: 12px;
+  color: #f4f7ff; background: linear-gradient(180deg,#1d2c4a,#121b30);
   border: 1.5px solid #d7b56a; font-size: 14px; font-weight: 700;
-  box-shadow: 0 8px 18px rgba(0,0,0,.35);
 }
-.focus-icon { width: 18px; height: 18px; display: grid; place-items: center; color: #e7c37a; }
+.focus-icon { width: 18px; height: 18px; color: #e7c37a; display: grid; place-items: center; }
 .focus-icon svg { width: 16px; height: 16px; }
 
 .grid-col-label {
-  background: linear-gradient(180deg, #1b2a46, #121b30);
-  border: 1.5px solid #d7b56a; border-radius: 8px;
-  padding: 5px 8px !important; transform: translate(-50%, -112%);
-  width: auto !important; max-width: 12% !important; white-space: nowrap !important;
+  background: #152036; border: 1.5px solid #d4b36a; border-radius: 4px 4px 0 0;
+  padding: 6px 4px 7px !important; transform: translate(-50%, -100%);
+  width: 12.2% !important; max-width: 12.2% !important;
+  box-sizing: border-box; white-space: nowrap !important;
 }
 .grid-col-kicker { display: none !important; }
 .grid-col-name { font-size: 11px !important; font-weight: 700; color: #f4f7fb; white-space: nowrap !important; }
 .grid-row-label { display: none !important; }
 
-.qr-stand { left: 1.3% !important; bottom: 2.2% !important; width: 150px !important; max-width: 150px !important; z-index: 9; }
-.qr-stand-board { background: #10192b; border: 2px solid #d7b56a; border-radius: 12px; padding: 10px; }
-.qr-stand-heading { font-size: 11px; font-weight: 800; letter-spacing: 0.04em; color: #f3e6c2; text-shadow: none; }
-.qr-stand-tagline { display: none !important; }
-.qr-stand-post { display: none !important; }
-#qr-container { width: 118px !important; height: 118px !important; background: #fff; padding: 4px; border-radius: 4px; }
+.qr-stand { left: 1.2% !important; bottom: 2% !important; width: 148px !important; z-index: 9; }
+.qr-stand-board { background: #10192b; border: 2px solid #d7b56a; border-radius: 10px; padding: 10px; }
+.qr-stand-heading { font-size: 11px; font-weight: 800; color: #f3e6c2; text-shadow: none; }
+.qr-stand-tagline, .qr-stand-post { display: none !important; }
+#qr-container { width: 116px !important; height: 116px !important; background: #fff; padding: 3px; }
 #qr-container canvas, #qr-container img, #qr-container svg { width: 110px !important; height: 110px !important; }
 
 #score-color-guide {
-  right: 1.3% !important; bottom: 2.4% !important; width: auto !important;
-  min-width: 176px; padding: 12px 14px; border-radius: 12px;
+  right: 1.2% !important; bottom: 2.2% !important; width: auto !important;
+  min-width: 180px; padding: 12px 14px; border-radius: 12px;
   background: #10192b; border: 2px solid #d7b56a;
 }
-.guide-title { font-size: 12px; letter-spacing: 0.06em; color: #f3e6c2; }
+.guide-title { font-size: 13px; color: #f3e6c2; letter-spacing: .04em; }
 
-.stage-controls { position: absolute; left: 50%; bottom: 2.6%; transform: translateX(-50%); z-index: 12; }
-.stage-controls button { border-radius: 999px; padding: 14px 24px !important; font-size: 16px !important; font-weight: 800; background: rgba(16,28,46,.92); border: 1px solid rgba(215,181,106,.55); color: #e8eef8; }
-#btn-play { background: linear-gradient(180deg, #e7d08a, #c9a44a); color: #1a1408; border-color: #e7d08a; }
+.stage-controls { position: absolute; left: 50%; bottom: 1.6%; transform: translateX(-50%); z-index: 12; opacity: .92; }
+.stage-controls button { border-radius: 999px; padding: 12px 22px !important; font-size: 15px !important; font-weight: 800; background: rgba(16,28,46,.9); border: 1px solid #d7b56a; color: #e8eef8; }
+#btn-play { background: linear-gradient(180deg,#e7d08a,#c9a44a); color: #1a1408; }
 @media (max-width: 900px) { .focus-panel, .scorecard-hero { display: none; } }
