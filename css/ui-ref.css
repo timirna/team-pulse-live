@@ -1,16 +1,8 @@
 html, body { margin: 0; height: 100%; overflow: hidden; font-family: 'Source Sans 3', system-ui, sans-serif; background: #050814; }
 .app-shell { padding: 0 !important; width: 100vw; min-height: 100vh; }
-.stage {
-  width: 100vw !important; height: 100vh !important; max-width: none !important; aspect-ratio: auto !important;
-  background: #071018 url('../assets/painted-house.jpg') center 46% / cover no-repeat;
-}
-#svg-mount { position: absolute; inset: 0; }
-#svg-mount svg { width: 100%; height: 100%; }
-#svg-mount svg.painted-mode > g { opacity: 0; }
-#svg-mount svg.painted-mode [id*="DATA_WINDOW"],
-#svg-mount svg.painted-mode [id*="DOOR"],
-#svg-mount svg.painted-mode [id*="ROSE"] { opacity: 0.55; }
-#svg-mount svg [data-pane-index] { opacity: 0.85; }
+.stage { width: 100vw !important; height: 100vh !important; max-width: none !important; aspect-ratio: auto !important; background: #071018; }
+#svg-mount, #svg-mount svg { width: 100%; height: 100%; }
+#svg-mount svg.painted-mode > g { opacity: 1; }
 
 .scorecard-hero { position: absolute; top: 1.2%; left: 50%; transform: translateX(-50%); z-index: 10; text-align: center; pointer-events: none; width: 80%; }
 .scorecard-title { margin: 0; font-family: Cinzel, Georgia, serif; font-weight: 700; font-size: clamp(26px, 3.2vw, 52px); letter-spacing: .04em; color: #f3d48a; display: flex; align-items: center; justify-content: center; gap: 16px; }
