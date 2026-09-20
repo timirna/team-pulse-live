@@ -8,7 +8,11 @@
     window.APP_CONFIG.roseWindow.minFontPx = 16;
     window.APP_CONFIG.roseWindow.maxFontPx = 30;
   }
-  var SHORT = { 'Customer Service & HR': 'CS & HR' };
+  var SHORT = {
+    'Customer Service & HR': 'CS & HR',
+    'Field Services': 'Field',
+    'Sales & Marketing': 'Sales'
+  };
   var ICONS = {
     q2: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M20 2H4l-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/></svg>',
     q3: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 13h8V3H3zm10 8h8V3h-8zM3 21h8v-6H3z"/></svg>',
@@ -32,6 +36,9 @@
     if (qr) { qr.style.left = ''; qr.style.width = ''; qr.style.bottom = ''; }
     if (guide) { guide.style.right = ''; guide.style.width = ''; }
     document.querySelectorAll('.grid-col-label').forEach(function (el) {
+      el.style.width = '';
+      el.style.minWidth = '0';
+      el.style.maxWidth = '';
       if (!el.querySelector('.grid-col-kicker')) {
         var k = document.createElement('span');
         k.className = 'grid-col-kicker';
