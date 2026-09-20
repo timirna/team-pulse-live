@@ -18,6 +18,8 @@
     stage.style.aspectRatio = 'auto';
     stage.style.width = '100vw';
     stage.style.height = '100vh';
+    var svg = document.querySelector('#svg-mount svg');
+    if (svg) svg.classList.add('painted-mode');
   }
   function pinChrome() {
     fillStage();
