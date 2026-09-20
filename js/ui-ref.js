@@ -3,6 +3,21 @@
     window.APP_CONFIG.svg.displayViewBox = '20 10 1633 920';
   }
 
+  function pinChrome() {
+    var qr = document.getElementById('qr-stand');
+    var guide = document.getElementById('score-color-guide');
+    if (qr) {
+      qr.style.left = '';
+      qr.style.width = '';
+      qr.style.bottom = '';
+    }
+    if (guide) {
+      guide.style.right = '';
+      guide.style.width = '';
+    }
+    document.querySelectorAll('.grid-col-kicker').forEach(function (el) { el.remove(); });
+  }
+
   function buildFocusPanel() {
     var el = document.getElementById('focus-panel');
     var cfg = window.APP_CONFIG;
@@ -26,12 +41,15 @@
       btn.innerHTML = '<span class="focus-icon">' + (icons[qKey] || '') + '</span><span class="focus-name">' + (colDef.shortLabel || qKey) + '</span>';
       el.appendChild(btn);
     });
+    pinChrome();
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', buildFocusPanel);
-  } else {
+  function start() {
     buildFocusPanel();
+    pinChrome();
   }
-  setTimeout(buildFocusPanel, 800);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
+  [400, 1200, 2500].forEach(function (ms) { setTimeout(start, ms); });
+  window.addEventListener('resize', pinChrome);
 })();
