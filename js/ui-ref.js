@@ -29,7 +29,14 @@
     var guide = document.getElementById('score-color-guide');
     if (qr) { qr.style.left = ''; qr.style.width = ''; qr.style.bottom = ''; }
     if (guide) { guide.style.right = ''; guide.style.width = ''; }
-    document.querySelectorAll('.grid-col-kicker').forEach(function (el) { el.remove(); });
+    document.querySelectorAll('.grid-col-label').forEach(function (el) {
+      if (!el.querySelector('.grid-col-kicker')) {
+        var k = document.createElement('span');
+        k.className = 'grid-col-kicker';
+        k.textContent = 'Team';
+        el.insertBefore(k, el.firstChild);
+      }
+    });
     document.querySelectorAll('.grid-col-name').forEach(function (el) {
       var raw = (el.textContent || '').trim();
       if (SHORT[raw]) el.textContent = SHORT[raw];
