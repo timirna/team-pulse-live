@@ -2,6 +2,10 @@
   if (window.APP_CONFIG && window.APP_CONFIG.svg) {
     window.APP_CONFIG.svg.displayViewBox = '0 0 1673.05 940.56';
   }
+  if (window.APP_CONFIG && window.APP_CONFIG.roseWindow) {
+    window.APP_CONFIG.roseWindow.fixedWord = '';
+    window.APP_CONFIG.roseWindow.maxWords = 1;
+  }
   var SHORT = { 'Customer Service & HR': 'CS & HR' };
   var ICONS = {
     q2: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M20 2H4l-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/></svg>',
@@ -18,8 +22,6 @@
     stage.style.aspectRatio = 'auto';
     stage.style.width = '100vw';
     stage.style.height = '100vh';
-    var svg = document.querySelector('#svg-mount svg');
-    if (svg) svg.classList.add('painted-mode');
   }
   function pinChrome() {
     fillStage();
