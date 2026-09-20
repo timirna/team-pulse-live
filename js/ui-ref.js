@@ -3,6 +3,19 @@
     window.APP_CONFIG.svg.displayViewBox = '0 0 1673.05 940.56';
   }
 
+  var SHORT = {
+    'Customer Service & HR': 'CS & HR',
+    'Customer Service, Human Resources and Recruiting': 'CS & HR',
+    'Field Services': 'Field',
+    'Installation and Field Services': 'Field',
+    'Leadership': 'Lead',
+    'Leadership & Corporate': 'Lead',
+    'Sales & Marketing': 'Sales',
+    'Sales and Marketing': 'Sales',
+    'Operations': 'Ops',
+    'Operations, Administration, Permitting and Compliance': 'Ops'
+  };
+
   function fillStage() {
     var stage = document.getElementById('stage');
     if (!stage) return;
@@ -19,10 +32,14 @@
     if (qr) { qr.style.left = ''; qr.style.width = ''; qr.style.bottom = ''; }
     if (guide) { guide.style.right = ''; guide.style.width = ''; }
     document.querySelectorAll('.grid-col-kicker').forEach(function (el) { el.remove(); });
+    document.querySelectorAll('.grid-col-name').forEach(function (el) {
+      var raw = (el.textContent || '').trim();
+      if (SHORT[raw]) el.textContent = SHORT[raw];
+    });
     document.querySelectorAll('.grid-col-label').forEach(function (el) {
-      el.style.width = '';
-      el.style.maxWidth = '18%';
-      el.style.whiteSpace = 'normal';
+      el.style.width = 'auto';
+      el.style.maxWidth = '9%';
+      el.style.whiteSpace = 'nowrap';
     });
     var board = document.querySelector('.qr-stand-board');
     if (board && !board.querySelector('.qr-stand-tagline')) {
