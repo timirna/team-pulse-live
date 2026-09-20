@@ -1,0 +1,25 @@
+TAYLOR FRIAR — FINAL LIVE EVENT BUILD
+======================================
+
+IMPORTANT
+1. Deploy THIS entire folder to Netlify. Do not merge it with an older deployment.
+2. After deployment, hard-refresh the browser (Ctrl+Shift+R / Cmd+Shift+R).
+3. The production website no longer substitutes mock survey values if live data fails.
+4. Live survey data is requested with cache bypass and refreshed every 10 seconds while the page is open.
+5. The page aggregates ALL responses currently in the connected response Sheet. There is no per-class reset/filter in this build.
+6. Team pane averages are intentionally hidden until that team has at least 3 responses (privacy threshold).
+7. Door percentage = percent of valid Q8 responses scored 4 or 5.
+8. Rose window words = most common Q10 one-word responses. They are live response words, not status text.
+9. The rose window displays live Q10 words. Exact "test" and "testing" entries are filtered; delete all old test-response rows from the Sheet before the live event.
+9. Audio files are bundled locally in assets/audio/. Audio starts only after the presenter clicks Play Reveal/Replay because browsers block automatic sound on page load.
+
+APPS SCRIPT
+The included apps-script/Code.gs is the server-side aggregation source. If the live Apps Script deployment is older than this file, update it in Google Apps Script and deploy a NEW VERSION of the existing Web App deployment so the same /exec URL continues to work.
+
+FINAL TEST
+- Submit a new survey response.
+- Keep the visualization page open; wait up to 10-15 seconds.
+- Confirm the live values update on the next reveal.
+- Click Play Reveal and confirm background music is audible.
+- Confirm final reveal SFX/sparkle.
+- Confirm Replay and Sound On/Off.

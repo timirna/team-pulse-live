@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team Pulse Survey &mdash; Stained-Glass House Reveal</title>
+  <link rel="stylesheet" href="css/styles.css?v=36-bigdark">
+</head>
+<body>
+  <div class="app-shell">
+
+    <div class="stage" id="stage">
+      <div id="svg-mount" aria-hidden="false" role="img" aria-label="Illustrated stained-glass house that lights up to reveal survey results"></div>
+
+      <div id="vignette" aria-hidden="true"></div>
+
+      <div id="overlay-wrap">
+        <div id="door-result">
+          <span id="door-result-value"></span>
+          <span id="door-result-sr" class="hidden" aria-live="polite"></span>
+        </div>
+
+        <div id="rose-words-wrap">
+          <div id="rose-words"></div>
+        </div>
+
+        <div id="sunburst-rays" aria-hidden="true"></div>
+        <div id="particle-container" aria-hidden="true"></div>
+
+        <!-- Client feedback, 2026-09-15 round 9: team/question labels live
+             directly ON the window grid (team = column header above each
+             window, question = row header down the left edge), matching the
+             mockup - NOT in a key below the house. -->
+        <div id="grid-labels" aria-label="Team and question labels on the window grid"></div>
+      </div>
+
+      <!-- Client feedback, 2026-09-15 round 9b: sign sits in the garden on
+           the LEFT like the mockup. It fits in the strip below the question
+           row labels (which end at ~80% of stage height), so it touches
+           neither the labels nor any part of the house graphic. -->
+      <div class="qr-stand" id="qr-stand">
+        <div class="qr-stand-board">
+          <div class="qr-stand-heading">SCAN TO<br>TAKE THE SURVEY</div>
+          <div id="qr-container" role="link" tabindex="0" aria-label="QR code linking to the survey form"></div>
+          <div class="qr-stand-tagline">Your voice shapes what comes next.</div>
+        </div>
+        <div class="qr-stand-post" aria-hidden="true"></div>
+      </div>
+
+      <!-- Small reference card IN the scene (bottom-right), matching the
+           original mockup's "SCORE COLOR GUIDE" placement/proportions. -->
+      <div id="score-color-guide" aria-label="Score color guide, 1 to 5"></div>
+
+      <div id="flash-overlay" aria-hidden="true"></div>
+
+      <div id="loading-state">
+        <div class="spinner" aria-hidden="true"></div>
+        <div class="loading-text">Loading illustration&hellip;</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button id="btn-play" disabled>&#9654; Play Reveal</button>
+      <button id="btn-replay" disabled>&#8635; Replay</button>
+      <button id="btn-mute" aria-pressed="false">&#128266; Sound on</button>
+    </div>
+
+    <div class="status-strip">
+      <div id="status-line">Loading&hellip;</div>
+      <div id="data-source-status" aria-live="polite">&nbsp;</div>
+      <div id="mock-warning" class="hidden"></div>
+      <div id="mapping-warning" class="hidden" role="alert"></div>
+      <div id="error-message" class="hidden" role="alert"></div>
+    </div>
+
+  </div>
+
+  <script src="js/vendor/qrcode.js?v=1"></script>
+  <script src="js/config.js?v=20260916-bigdark"></script>
+  <script src="js/colorutils.js?v=4"></script>
+  <script src="js/mockdata.js?v=4"></script>
+  <script src="js/datasource.js?v=3"></script>
+  <script src="js/dataprocessing.js?v=3"></script>
+  <script src="js/svgloader.js?v=2"></script>
+  <script src="js/panemapping.js?v=4"></script>
+  <script src="js/audio.js?v=20260916-bgstartfix"></script>
+  <script src="js/qrdisplay.js?v=1"></script>
+  <script src="js/finaleeffects.js?v=3"></script>
+  <script src="js/cinematiclighting.js?v=4"></script>
+  <script src="js/animation.js?v=20260916-fixedword-resilient"></script>
+  <script src="js/main.js?v=20260916-bgstartfix"></script>
+</body>
+</html>

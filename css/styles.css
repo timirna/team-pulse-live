@@ -1,0 +1,1003 @@
+:root {
+  --accent: #EBFC34;
+  --bg: #05070d;
+  --panel-bg: rgba(10, 14, 24, 0.86);
+  --panel-border: rgba(235, 252, 52, 0.25);
+  --text: #eef1f8;
+  --text-dim: #9aa3b8;
+  --error: #ff5d5d;
+  --ok: #4fe07f;
+  --transition-slow: 900ms;
+  --transition-med: 600ms;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  height: 100%;
+}
+
+.hidden { display: none !important; }
+
+/* ------------------------------------------------------------------ */
+/* Layout                                                              */
+/* ------------------------------------------------------------------ */
+
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  gap: 12px;
+}
+
+/* Client feedback, 2026-09-15 ("the house must be the hero... enlarge the
+   house substantially"): the house is the whole point of the piece, so the
+   stage now takes nearly the full viewport width - everything else (QR
+   sign, score guide, team/question key) is either a small prop drawn IN
+   the scene or a compact strip below, not a competing equal-sized panel.
+   Compare against the previous min(96vw, 1720px) shared with a same-height
+   sidebar/rows underneath - this is deliberately larger and unshared. */
+.stage {
+  position: relative;
+  width: min(99vw, 2100px);
+  aspect-ratio: 1673.05 / 940.56;
+  background: radial-gradient(ellipse at 50% 30%, #101728 0%, #04060a 75%);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.55);
+}
+
+/* Small freestanding sign IN the scene (bottom-left) - matches the client's
+   original mockup: the QR is a small prop next to the house, not a
+   same-height panel beside it. Sized relative to the stage (%) so it scales
+   with the house rather than needing separate breakpoints. `.qr-stand-post`
+   is a short vertical bar under the board, just enough to read as "sign on
+   a post in the ground" rather than a flat card floating in space. */
+/* Client feedback, 2026-09-15 round 4: "I need it visually present and
+   large enough for an audience phone to scan." The 190px max-width cap was
+   the bug - at wide/projector viewports (the stage can reach ~1900-2100px
+   wide) that cap kicked in well below the intended 13% share, so the sign
+   (and the QR inside it) stayed small regardless of how big the house got,
+   and looked essentially blank once a screenshot/projector further
+   downscaled it. Cap raised substantially and the width share increased a
+   touch so the QR itself renders comfortably large (SVG/vector, so scaling
+   it up stays crisp - no blur). Same position (left/bottom), same overall
+   "small sign next to the house" proportions - just no longer artificially
+   capped tiny. */
+/* Client feedback, 2026-09-15 round 9: the sign was overlapping the left
+   side of the house, and the house's left margin is now needed for the
+   on-grid question row labels. The sign therefore moved OUT of the scene
+   entirely and sits below the house next to the controls - fully separate
+   from the house graphic, touching/covering none of it. */
+/* Client feedback, 2026-09-15 round 9b: the sign belongs in the garden on
+   the LEFT, like the mockup. The question row labels occupy the left margin
+   down to ~80% of stage height, so the sign is sized and anchored to sit in
+   the clear strip below them - touching neither the labels nor the house. */
+.qr-stand {
+  position: absolute;
+  left: 1%;
+  bottom: 1%;
+  width: 11%;
+  min-width: 0;
+  max-width: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 4; /* above #vignette */
+}
+/* Round 8, 2026-09-15: small warm "spotlight" glow above the sign, like a
+   lamp lighting it from overhead in the client's reference image. Purely
+   decorative (screen blend, low opacity) - doesn't affect the sign's own
+   readability, just adds ambient warmth around it. */
+.qr-stand-spotlight {
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  top: -18%;
+  width: 150%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(255, 225, 160, 0.55) 0%,
+    rgba(255, 225, 160, 0.22) 40%,
+    rgba(255, 225, 160, 0) 75%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+.qr-stand-board {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 5px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #6b4a2f 0%, #4a3220 100%);
+  border: 1px solid rgba(255, 220, 160, 0.35);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(0,0,0,0.25);
+}
+.qr-stand-post {
+  position: relative;
+  z-index: 1;
+  width: 14%;
+  height: 16px;
+  background: linear-gradient(180deg, #4a3220 0%, #2e1f14 100%);
+  border-radius: 0 0 2px 2px;
+}
+.qr-stand-heading {
+  font-size: clamp(5px, 0.5vw, 9px);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-align: center;
+  line-height: 1.3;
+  color: #fdf3e2;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+}
+/* Round 8, 2026-09-15: short tagline under the QR, matching the client's
+   reference image. Generic, non-data copy (no survey content invented). */
+.qr-stand-tagline {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 8px;
+  line-height: 1.3;
+  text-align: center;
+  color: rgba(253, 243, 226, 0.85);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+}
+
+#svg-mount { position: relative; isolation: isolate; width: 100%; height: 100%; }
+#svg-mount svg { position: relative; z-index: 1; display: block; width: 100%; height: 100%; }
+
+/* Adapted from the supplied finale treatment for the inline SVG mount. */
+#svg-mount::before {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  left: 50%; top: 46%; width: 110%; aspect-ratio: 1;
+  transform: translate(-50%, -50%) scale(.55);
+  opacity: 0;
+  pointer-events: none;
+  background: repeating-conic-gradient(from 0deg, rgba(255,220,125,0) 0deg 8deg, rgba(255,220,125,.52) 9deg 12deg, rgba(255,220,125,0) 13deg 24deg);
+  filter: blur(4px);
+}
+@keyframes finaleHouseImpact {
+  0% { filter: brightness(1) saturate(1); transform: scale(1); }
+  12% { filter: brightness(1.45) saturate(1.22); transform: scale(1.012); }
+  30% { filter: brightness(1.18) saturate(1.1); transform: scale(1.004); }
+  100% { filter: brightness(1) saturate(1); transform: scale(1); }
+}
+@keyframes finaleRevealRays {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(.45) rotate(-5deg); }
+  15% { opacity: .96; }
+  55% { opacity: .4; }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.15) rotate(8deg); }
+}
+#svg-mount.finale-impact::before { animation: finaleRevealRays 1250ms cubic-bezier(.15,.8,.25,1); }
+#svg-mount svg.finale-impact { animation: finaleHouseImpact 900ms cubic-bezier(.2,.9,.2,1); }
+
+#overlay-wrap {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  width: min(96vw, 1720px);
+}
+
+/* ------------------------------------------------------------------ */
+/* Buttons / status strip                                              */
+/* ------------------------------------------------------------------ */
+
+button {
+  font-family: inherit;
+  font-size: 15px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: 1px solid var(--panel-border);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 200ms ease, transform 150ms ease, border-color 200ms ease;
+}
+button:hover:not(:disabled) { background: rgba(235,252,52,0.14); border-color: var(--accent); }
+button:active:not(:disabled) { transform: scale(0.97); }
+button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+#btn-play { background: var(--accent); color: #12140a; font-weight: 700; border-color: var(--accent); }
+#btn-play:hover:not(:disabled) { background: #f4ff6b; }
+
+.status-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  text-align: center;
+  min-height: 40px;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+/* Client feedback, 2026-09-15 round 2 ("the house must be the hero... make
+   the information panels significantly more compact and visually
+   subordinate... supporting information around the house, not three huge
+   equal-width dashboard cards underneath it"): the score guide moved to a
+   small card drawn IN the scene (bottom-right, matching the client's
+   original mockup's own placement/proportions) instead of a full-width row
+   below the house; the team + question keys were merged into one compact
+   strip (#info-panel, below) instead of two more equal-sized cards. Both
+   still populate straight from js/config.js (js/main.js ->
+   renderScoreColorGuide()/renderInfoPanel()), so neither can drift out of
+   sync with the actual pane colors or question mapping, and both stay
+   always visible (not tied to the reveal animation) so a presenter can
+   reference them throughout. */
+/* Client feedback, 2026-09-15 round 3: "increase Score Color Guide
+   readability ~20-30%..." (text/swatch sizes scaled up roughly a quarter -
+   see .guide-title/.guide-row/.guide-swatch below).
+   Client feedback, 2026-09-15 round 5: that size increase pushed the
+   card's left edge to ~79% of stage width, but the rightmost window's own
+   right edge measures ~88.6% - a real, confirmed overlap onto the glass,
+   not just a visual impression (checked via getBoundingClientRect, not
+   eyeballed). The whole house silhouette (wall trim included) only
+   extends to ~92%, so there isn't much true "outside the house" room on
+   this side - narrowed the card and moved it further right so its left
+   edge clears the window with margin, landing on bare background past the
+   house rather than on the wall or the glass. Text size (clamp values
+   below) is untouched from round 3's increase; only the card's own width
+   shrank, which just means slightly more line-wrapping for the two-word
+   "Low/High confidence" labels, not smaller text. */
+#score-color-guide {
+  position: absolute;
+  right: 0.5%;
+  bottom: 4%;
+  z-index: 4; /* above #vignette */
+  width: max-content;
+  min-width: 210px;
+  max-width: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  /* Round 5 fix: this was `8% 9%` (of the STAGE, since percentage padding
+     always resolves against the containing block's width, never the
+     element's own width) - fine when this card was 18% of the stage, but
+     once narrowed to 10% the padding alone (~130-147px on a ~1900px-wide
+     stage) exceeded the card's own intended width/min-width, and the box
+     model broke down to a much wider box than specified. Fixed padding
+     side-steps this entirely and is more predictable regardless of the
+     card's width. */
+  padding: 10px 12px;
+  border-radius: 7px;
+  background: rgba(8, 10, 18, 0.9);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.45);
+  overflow: visible;
+}
+.guide-title {
+  font-size: clamp(9px, 1vw, 14px);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.guide-sub {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 2px;
+}
+.guide-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: clamp(9px, 0.95vw, 14px);
+  color: var(--text);
+  line-height: 1.35;
+}
+.guide-swatch {
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.35);
+}
+.guide-num {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(235,252,52,0.16);
+  border: 1px solid var(--panel-border);
+  color: var(--accent);
+}
+.guide-text { flex: 1; white-space: nowrap; }
+
+/* Compact combined key below the house - two slim columns (team / question)
+   sharing one small card, deliberately far smaller than the house itself.
+   No on-house numbers point to it (see js/main.js -> renderInfoPanel()
+   comment) - the 5 windows read left-to-right in the same order the team
+   column lists them, and the 7 rows in every window read top-to-bottom in
+   the same order the question column lists them, so position alone is the
+   connection. */
+/* Client feedback, 2026-09-15 round 3: "increase Teams/Questions key
+   readability ~15-20%... without making the card dominate the house" -
+   same location/layout, text/badges scaled up a bit less than the score
+   guide above so it stays clearly the smaller, secondary reference. */
+/* Client feedback, 2026-09-15 round 9 (top priority): the below-house key
+   is GONE - a presenter can't cross-reference a legend under the visual
+   mid-presentation. Labels now sit directly ON the grid like the client's
+   mockup: team names as column headers above each window, question names
+   as row headers down the left edge, both positioned from real SVG
+   geometry by js/main.js -> renderGridLabels(). Always visible (not tied
+   to the reveal) so the grid reads before, during and after. */
+#grid-labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3; /* above #vignette, below the flash overlay */
+}
+ .grid-col-label {
+  position: absolute;
+  transform: translate(-50%, -108%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  text-align: center;
+  color: #fdf3e2;
+  background: rgba(14, 23, 48, 0.96);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 5px;
+  padding: 5px 10px 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.28);
+  text-shadow: 0 1px 2px #000;
+  white-space: nowrap;
+  overflow: visible;
+  width: max-content !important;
+  min-width: max-content;
+  box-sizing: border-box;
+}
+.grid-col-kicker {
+  display: block;
+  font-size: clamp(7px, 0.52vw, 10px);
+  font-weight: 600;
+  line-height: 1;
+  color: rgba(253,243,226,.78);
+}
+.grid-col-name {
+  display: block;
+  font-size: clamp(8px, 0.68vw, 13px);
+  font-weight: 700;
+  line-height: 1.08;
+  color: #fdf3e2;
+  white-space: nowrap;
+}
+
+
+@media (max-width: 900px) {
+  .guide-title { font-size: 10px; }
+  .guide-row { font-size: 10px; gap: 5px; }
+}
+
+#status-line { font-size: 14px; color: var(--text); }
+
+/* Client feedback, 2026-09-15 round 4: "absolutely none of this may appear
+   in the audience-facing UI... keep diagnostic information in the browser
+   console only." js/main.js still fully computes, sets, and now also
+   console.logs all of this (data source, mock-data fallback notice,
+   mapping mismatches, load errors) exactly as before - hidden here purely
+   at the presentation layer so a live audience never sees it, while a
+   developer can still open devtools and see everything. Not `.hidden`
+   (which js/main.js toggles based on state) - unconditional, so there is
+   no code path that can make these visible again. */
+#data-source-status, #mock-warning, #mapping-warning, #error-message {
+  display: none !important;
+}
+
+#loading-state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: rgba(4,6,10,0.82);
+  z-index: 20;
+  color: var(--text);
+}
+.spinner {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: 3px solid rgba(235,252,52,0.25);
+  border-top-color: var(--accent);
+  animation: spin 900ms linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ------------------------------------------------------------------ */
+/* Scene lighting states                                               */
+/* ------------------------------------------------------------------ */
+
+#svg-mount svg {
+  transition: filter var(--transition-slow) ease;
+  filter: brightness(0.55) saturate(0.4) hue-rotate(205deg);
+}
+/* ~90% brightness - the slow buildup holds here briefly before the pop. */
+#svg-mount svg.scene-nearly-lit {
+  filter: brightness(0.92) saturate(0.88) hue-rotate(16deg);
+}
+/* 100% - deliberately its own (fast) transition so this specific jump is a
+   snappy pop, distinct from the slow build that got it to ~90%. */
+#svg-mount svg.scene-lit {
+  filter: brightness(1) saturate(1) hue-rotate(0deg);
+  transition: filter var(--finale-pop-ms, 260ms) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+#svg-mount svg #A3_01_SKY_STARS_MOON.twinkle-target { animation: none; }
+@keyframes twinkle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.82; }
+}
+#svg-mount svg.twinkle #A3_01_SKY_STARS_MOON {
+  animation: twinkle 3600ms ease-in-out infinite;
+}
+
+#svg-mount svg [id^="UPPER_WINDOW_"],
+#svg-mount svg [id^="PORCH_LIGHT_"],
+#svg-mount svg [id^="PATH_LIGHT_"],
+#svg-mount svg #DOOR_GLASS,
+#svg-mount svg #ROSE_GLASS,
+#svg-mount svg #ROSE_FRAME {
+  transition: filter var(--transition-med) ease, opacity var(--transition-med) ease, transform var(--transition-med) ease;
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0.55;
+  filter: brightness(0.75) saturate(0.6);
+}
+
+#svg-mount svg [id^="UPPER_WINDOW_"].lit,
+#svg-mount svg [id^="PORCH_LIGHT_"].lit,
+#svg-mount svg [id^="PATH_LIGHT_"].lit {
+  opacity: 1;
+  filter: brightness(1.25) saturate(1.15) drop-shadow(0 0 6px rgba(255, 230, 150, 0.55));
+}
+
+#svg-mount svg #DOOR_GLASS.lit {
+  opacity: 1;
+  filter: brightness(1.3) saturate(1.2) drop-shadow(0 0 14px var(--accent));
+}
+
+#svg-mount svg #ROSE_GLASS.lit {
+  opacity: 1;
+  filter: brightness(1.15) saturate(1.15);
+}
+/* Client feedback round 3, 2026-09-15: with the doorway now tuned as the
+   scene's strongest light source, the rose window's own glow was still
+   competing with it for visual focus. Trimmed slightly (brightness/
+   saturate/drop-shadow all reduced, but the rose window is still clearly
+   "lit" and legible) so the door reads as the primary focal point. This is
+   the ONLY brightness change this round - the rest of the settled lighting
+   state (door/window glow, vignette, haze) is deliberately untouched. */
+#svg-mount svg #ROSE_GLASS.lit-strong {
+  filter: brightness(1.22) saturate(1.18) drop-shadow(0 0 12px var(--accent));
+  transform: scale(1.015);
+}
+#svg-mount svg #ROSE_FRAME.lit {
+  filter: brightness(1.08) drop-shadow(0 0 6px rgba(235,252,52,0.28));
+}
+
+/* Data-pane glass fragments: subtle brightness lift once "lit" (color comes
+   from the overlay clone, this just adds a touch of glow to the glass itself). */
+#svg-mount svg [data-pane-index] {
+  transition: filter var(--transition-med) ease;
+}
+#svg-mount svg [data-pane-index].pane-lit {
+  filter: brightness(1.12) saturate(1.1);
+}
+
+/* ------------------------------------------------------------------ */
+/* FINALE effects (the 100% capstone pop) - all purely decorative,     */
+/* none of this touches data, scoring, or pane/team mapping.           */
+/* ------------------------------------------------------------------ */
+
+/* 2. Warm glow radiating from the windows/doorway. A keyframe (not a
+   static filter) so it can be layered on top of the existing .lit/
+   .pane-lit filters during the pop, then settle to a softer persistent
+   value via animation-fill-mode:forwards - no extra DOM overlay needed,
+   the glow naturally emanates from each real window/door position. */
+@keyframes finaleGlowPulse {
+  0%   { filter: brightness(1) saturate(1) drop-shadow(0 0 6px rgba(255,217,138,0)); }
+  35%  { filter: brightness(1.55) saturate(1.35) drop-shadow(0 0 34px rgba(255,217,138,0.95)) drop-shadow(0 0 64px rgba(255,217,138,0.5)); }
+  100% { filter: brightness(1.2) saturate(1.12) drop-shadow(0 0 16px rgba(255,217,138,var(--finale-glow-settle,0.35))); }
+}
+#svg-mount svg .finale-glow-pulse {
+  animation-name: finaleGlowPulse;
+  animation-duration: var(--finale-glow-ms, 900ms);
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+}
+
+/* 3. Sunburst rays behind the roofline - a conic-gradient masked into thin
+   rays, radial-masked so they fade toward the outer edge. Purely additive
+   HTML overlay, positioned at runtime; the SVG artwork itself is untouched. */
+#sunburst-rays {
+  position: absolute;
+  width: 72%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%) scale(0.58);
+  border-radius: 50%;
+  background: repeating-conic-gradient(from -7deg, transparent 0deg 7deg, rgba(255,232,174,.10) 8deg, rgba(255,210,112,.42) 13deg, rgba(255,185,65,.14) 19deg, transparent 26deg 34deg);
+  -webkit-mask-image: radial-gradient(circle, #000 8%, #000 38%, rgba(0,0,0,.72) 54%, transparent 75%);
+  mask-image: radial-gradient(circle, #000 8%, #000 38%, rgba(0,0,0,.72) 54%, transparent 75%);
+  filter: blur(9px);
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  z-index: 0;
+}
+@keyframes sunburstPulse {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.58) rotate(-3deg); }
+  22%  { opacity: 0.96; transform: translate(-50%, -50%) scale(1.02) rotate(0deg); }
+  52%  { opacity: 0.56; }
+  100% { opacity: 0.08; transform: translate(-50%, -50%) scale(1.16) rotate(3deg); }
+}
+#sunburst-rays.pulse {
+  animation: sunburstPulse var(--finale-rays-ms, 1100ms) ease-out forwards;
+}
+
+/* 4. Short white camera-flash overlay, exactly at the 100% moment. Default
+   fill-mode (none) means opacity naturally returns to the base 0 the instant
+   the animation ends - the screen is never left white. */
+#flash-overlay {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 50;
+}
+@keyframes finaleFlashPop {
+  0%   { opacity: 0; }
+  18%  { opacity: var(--finale-flash-peak, 0.8); }
+  100% { opacity: 0; }
+}
+#flash-overlay.flash {
+  animation: finaleFlashPop var(--finale-flash-ms, 160ms) ease-out;
+}
+
+/* 5. Small golden particle burst at the doorway. */
+.finale-particle {
+  position: absolute;
+  z-index: 4; /* above #vignette */
+  left: 0; top: 0;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  background: var(--finale-particle-color, #FFD98A);
+  box-shadow: 0 0 7px 2px rgba(255, 235, 176, 0.92), 0 0 15px rgba(255, 184, 57, 0.48);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+@keyframes finaleParticleBurst {
+  0%   { opacity: 0; transform: translate(0, 0) scale(0.3); }
+  12%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1); }
+}
+.finale-particle.burst {
+  animation: finaleParticleBurst var(--dur, 1000ms) ease-out forwards;
+}
+
+/* ------------------------------------------------------------------ */
+/* CINEMATIC LIGHTING (environmental illumination) - client feedback,   */
+/* 2026-09-15. Purely additive light-source effects; never touches pane */
+/* colors. z-index 1 (glows) sits between the SVG (z-index auto/0) and  */
+/* #vignette (z-index 2); every existing overlay that must stay fully   */
+/* legible over the vignette (door result, rose words, rays, particles, */
+/* QR) was given z-index 3-4 above, so nothing else needed to move.     */
+/* ------------------------------------------------------------------ */
+
+.env-glow {
+  position: absolute;
+  z-index: 1;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  /* Client feedback round 2, 2026-09-15: the previous wide falloff (full
+     intensity out to ~32%, still 35% strong at 60%) spread light across the
+     whole facade instead of reading as a localized source, washing the
+     cream walls/columns toward white. Tightened so intensity drops off much
+     closer to the source - combined with the lower opacity/size values in
+     js/config.js, the glow now stays close to its window/door and doesn't
+     wash the surrounding facade. */
+  background: radial-gradient(circle,
+    rgba(var(--env-glow-color), 0.9) 0%,
+    rgba(var(--env-glow-color), 0.45) 26%,
+    rgba(var(--env-glow-color), 0.12) 50%,
+    rgba(var(--env-glow-color), 0) 72%);
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  transition: opacity 1200ms ease;
+}
+/* Soft warm spill from each of the 5 team windows onto their frames/walls. */
+.env-glow-window { }
+/* Stronger golden spill from the doorway onto columns/steps. */
+.env-glow-door { }
+/* Very subtle ambient warmth near the whole house. */
+.env-glow-haze { mix-blend-mode: soft-light; }
+/* Round 6, 2026-09-15: residual halo behind the central roof/rose-window
+   area, keeping that area from going visually "dead" once the transient
+   sunburst rays finish. `screen` (default, like window/door) so it reads
+   as a soft warm glow, not just a lightening wash. */
+.env-glow-rose { }
+/* Round 8, 2026-09-15: small accent glow on each porch/path light along
+   the walkway, matching the client's reference image's glowing lamps. */
+.env-glow-small { }
+/* Round 8, 2026-09-15: soft halo around the moon - part of the static
+   night sky (see js/cinematicLighting.js -> setup() for why it's built
+   differently from every glow above: always on, not reveal-triggered). */
+.env-glow-moon { }
+
+/* Permanent vignette - darkens the outer edges so the illuminated house
+   reads as the focal point in both the dark and 100% states. Present from
+   first paint; intentionally does NOT change between states (the dramatic
+   dark-vs-lit contrast comes from the glows above turning on, not from the
+   vignette itself moving). */
+#vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 42%,
+    transparent 36%,
+    rgba(2, 4, 12, calc(var(--vignette-opacity, 0.55) * 0.55)) 70%,
+    rgba(2, 4, 12, var(--vignette-opacity, 0.55)) 100%);
+}
+
+/* ------------------------------------------------------------------ */
+/* Door result overlay                                                 */
+/* ------------------------------------------------------------------ */
+
+#door-result {
+  position: absolute;
+  transform: translate(-50%, -60%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  z-index: 3; /* above #vignette (z-index 2) so it stays fully legible */
+}
+/* Client's final reference: remove the "100%" placeholder look - no more
+   floating pill/background chip, which read as a UI label rather than
+   part of the scene. Styled instead like lettering lit from within the
+   door glass itself: no box, just a warm layered glow/shadow doing the
+   contrast work (same technique already used for the rose word text and
+   the finale glow), text empty until there's a real value to show. */
+/* Client feedback, 2026-09-15 round 2: the previous treatment (large,
+   neon-accent, heavy multi-layer glow) still read as an application status
+   badge, not something belonging to the door. Cut roughly in half and
+   switched to a warm gold that sits closer to the door's own lit-glass
+   tones, with a single soft shadow instead of a halo - small and quiet
+   enough to read as an engraved detail, not a headline callout. */
+#door-result-value {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(11px, 1.1vw, 17px);
+  font-weight: 700;
+  font-variant: small-caps;
+  color: #f0d9a6;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 3px #000, 0 0 7px rgba(240, 217, 166, 0.6);
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 500ms ease, transform 500ms ease;
+}
+/* Client feedback, 2026-09-15 round 3: "never prepend 100%" / "do not
+   display the percentage anywhere on the house" - js/animation.js ->
+   revealDoorResult() no longer puts a number in this element at all, only
+   the qualitative "Yes" when the real data supports it. This class just
+   handles its fade-in now that there's no count-up animation providing
+   one. */
+#door-result-value.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ------------------------------------------------------------------ */
+/* Rose window word result                                             */
+/* ------------------------------------------------------------------ */
+
+#rose-words-wrap {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: min(22vw, 260px);
+  text-align: center;
+  opacity: 0;
+  transition: opacity var(--transition-slow) ease;
+  pointer-events: none;
+  z-index: 3; /* above #vignette */
+}
+#rose-words-wrap.visible { opacity: 1; }
+
+#rose-words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  line-height: 1.05;
+  align-items: baseline;
+  justify-content: center;
+  /* Scaled down (via inline style, js/animation.js -> fitRoseWordsWithinWindow)
+     only when a larger word set would otherwise overflow the rose window's
+     circle - see that function for why. Center-based so it shrinks toward
+     the same point the wrap is already centered on. */
+  transform-origin: center;
+}
+.rose-word {
+  /* Client feedback, 2026-09-15 round 3: the small-caps treatment was
+     rendering the real word "ready" as "READY" - visually indistinguishable
+     from a generic app status message, which is exactly what read as a
+     debug label. Removed small-caps entirely (the word now displays in its
+     own natural case) and switched to a lighter, italic serif with muted
+     color and a near-flat shadow (no glow halo) so it reads as fine
+     lettering etched into the glass, not a bold callout. This is a real
+     survey response word (js/dataProcessing.js -> q10Ranked) - never a
+     hardcoded placeholder - so the fix here is purely about not LOOKING
+     like a status label. */
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+  /* Client feedback, 2026-09-15 round 5: bigger + dark for visibility
+     against the pale rose-window glass (was a light cream color). */
+  color: rgba(35, 22, 12, 0.92);
+  text-shadow: 0 1px 1px rgba(255,255,255,0.35);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 700ms ease, transform 700ms ease;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  max-width: 100%;
+}
+#rose-words-wrap.visible .rose-word {
+  opacity: 1;
+  transform: translateY(0);
+}
+.rose-word-empty { font-size: 14px; color: var(--text-dim); font-weight: 400; }
+
+/* ------------------------------------------------------------------ */
+/* QR code                                                             */
+/* ------------------------------------------------------------------ */
+
+/* Client feedback, 2026-09-15: now lives inside .qr-stand (a sign to the
+   left of the house, not floating over the artwork), so it's laid out
+   normally rather than absolutely positioned in a stage corner - the
+   `pos-*` classes js/qrDisplay.js still adds are harmless no-ops here.
+   The fade-out-before-the-pop / restore-on-reset behavior (js/
+   finaleEffects.js) is unchanged and still works: it only ever toggles
+   `.qr-hidden`'s opacity, which doesn't depend on absolute positioning. */
+#qr-container {
+  width: 100%;
+  background: #fff;
+  padding: 6%;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  pointer-events: auto;
+  opacity: 1;
+  transition: opacity 200ms ease, transform 200ms ease;
+  cursor: pointer;
+}
+#qr-container:hover, #qr-container:focus-visible {
+  transform: scale(1.04);
+  box-shadow: 0 0 0 3px rgba(235,252,52,.7), 0 0 24px rgba(255,220,150,.45);
+  outline: none;
+}
+/* Fades out just before the finale pop so it doesn't compete visually with
+   it; Replay/reset removes this class to restore it. */
+#qr-container.qr-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--finale-qr-fade-ms, 400ms) ease;
+}
+#qr-container svg { display: block; width: 100%; height: auto; }
+.qr-fallback { font-size: 10px; color: #111; max-width: 140px; }
+#qr-caption {
+  display: block;
+  margin-top: 6px;
+  font-size: 10px;
+  color: #333;
+  text-align: center;
+}
+
+/* ------------------------------------------------------------------ */
+/* Responsive                                                          */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 900px) {
+  .app-shell { padding: 10px; gap: 10px; }
+  .controls { gap: 8px; }
+  button { padding: 9px 14px; font-size: 13px; }
+  #rose-words-wrap { width: 60vw; }
+  #door-result-value { font-size: 15px; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Reduced motion                                                      */
+/* ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  #svg-mount svg,
+  #svg-mount svg [id^="UPPER_WINDOW_"],
+  #svg-mount svg [id^="PORCH_LIGHT_"],
+  #svg-mount svg [id^="PATH_LIGHT_"],
+  #svg-mount svg #DOOR_GLASS,
+  #svg-mount svg #ROSE_GLASS,
+  #svg-mount svg #ROSE_FRAME,
+  #svg-mount svg [data-pane-index],
+  .rose-word {
+    transition-duration: 120ms !important;
+    animation: none !important;
+    transform: none !important;
+  }
+  /* #rose-words-wrap is intentionally excluded from the blanket
+     transform:none above: its translate(-50%,-50%) is structural centering,
+     not decorative motion - stripping it left the word anchored by its top-
+     left corner instead of its center, so it rendered outside the rose
+     window whenever reduced-motion was active. Only fast-track its fade. */
+  #rose-words-wrap {
+    transition-duration: 120ms !important;
+  }
+  #svg-mount svg.twinkle #A3_01_SKY_STARS_MOON { animation: none; }
+
+  /* Client feedback, 2026-09-15 round 9 - ROOT CAUSE of "there's still no
+     glow burst, pulse, or light rays at 100%": this block used to also set
+     `animation: none` on #flash-overlay, #sunburst-rays, .finale-particle
+     and .finale-glow-pulse. On any machine with the OS-level "reduce
+     motion" accessibility setting enabled (common default on macOS and
+     managed corporate laptops), that silently killed the entire finale
+     burst - so no amount of tuning it would ever have made it visible on
+     that machine, which matches the client reporting it missing while it
+     verified as working here.
+     The finale is now deliberately EXEMPT from reduced-motion suppression:
+     it is a short (~1.5s), one-shot moment the presenter explicitly opts
+     into by clicking Play/Replay - not ambient, looping or involuntary
+     motion - and it is the entire point of the piece for a live audience.
+     The genuinely ambient motion (the looping star twinkle above, and the
+     long scene transitions) still respects the setting. */
+}
+
+
+/* ==================================================================
+   EVENT UI FINAL — authoritative label/guide rules only.
+   Keeps original house framing and data architecture unchanged.
+   ================================================================== */
+
+/* Left question labels: one consistent rectangular card system. */
+.grid-row-label {
+  position: absolute;
+  box-sizing: border-box;
+  transform: translateY(-50%);
+  width: clamp(128px, 9.2vw, 166px);
+  min-width: clamp(128px, 9.2vw, 166px);
+  margin: 0 10px 0 0;
+  padding: 7px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  white-space: nowrap;
+  overflow: visible;
+  text-align: left;
+  font-size: clamp(11px, .82vw, 15px);
+  font-weight: 700;
+  line-height: 1;
+  color: #f8f3e8;
+  background: rgba(12, 22, 47, .97);
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 6px;
+  box-shadow: 0 5px 14px rgba(0,0,0,.34);
+  text-shadow: 0 1px 2px rgba(0,0,0,.75);
+}
+
+/* Team headers: compact, directly associated with their windows. */
+.grid-col-label {
+  position: absolute;
+  box-sizing: border-box;
+  transform: translate(-50%, -106%);
+  width: max-content !important;
+  min-width: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  color: #f8f3e8;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  white-space: nowrap;
+  overflow: visible;
+  text-align: center;
+}
+.grid-col-kicker {
+  display: block;
+  margin: 0 0 1px;
+  padding: 0;
+  font-size: clamp(7px, .5vw, 10px);
+  font-weight: 600;
+  line-height: 1;
+  color: rgba(248,243,232,.84);
+  text-shadow: 0 1px 2px rgba(0,0,0,.9);
+}
+.grid-col-name {
+  display: block;
+  box-sizing: border-box;
+  width: max-content;
+  min-width: 0;
+  max-width: none;
+  padding: 6px 10px 7px;
+  border-radius: 5px;
+  background: rgba(12,22,47,.97);
+  border: 1px solid rgba(255,255,255,.18);
+  box-shadow: 0 4px 12px rgba(0,0,0,.30);
+  color: #f8f3e8;
+  font-size: clamp(9px, .66vw, 13px);
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0,0,0,.75);
+}
+
+/* Score guide must grow to its longest no-wrap row. */
+#score-color-guide {
+  width: max-content;
+  min-width: 220px;
+  max-width: none;
+  overflow: visible;
+  box-sizing: border-box;
+}
+.guide-text { white-space: nowrap; }
+
+/* Projector readability: strengthen each mapped data fragment itself rather
+   than scaling/cropping the entire house. Geometry and pane mapping stay intact. */
+#svg-mount svg [data-pane-index] {
+  stroke-linejoin: round;
+  paint-order: stroke fill;
+}
+#svg-mount svg [data-pane-index].pane-lit {
+  filter: brightness(1.2) saturate(1.22) drop-shadow(0 0 2.5px rgba(255,255,255,.30));
+}
+
+@media (max-width: 900px) {
+  .grid-row-label {
+    width: 112px;
+    min-width: 112px;
+    margin-right: 7px;
+    padding: 6px 9px;
+    font-size: 11px;
+  }
+  .grid-col-kicker { font-size: 8px; }
+  .grid-col-name { padding: 5px 8px 6px; font-size: 10px; }
+}
