@@ -22,6 +22,7 @@
     q7: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg>',
     q9: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.22 2.53C11.09 5.01 12.76 4 14.5 4 17 4 19 6 19 8.5c0 3.78-3.4 6.86-8.55 11.54z"/></svg>'
   };
+
   function fillStage() {
     var stage = document.getElementById('stage');
     if (!stage) return;
@@ -29,16 +30,15 @@
     stage.style.width = '100vw';
     stage.style.height = '100vh';
   }
-  function pinChrome() {
-    fillStage();
-    var qr = document.getElementById('qr-stand');
-    var guide = document.getElementById('score-color-guide');
-    if (qr) { qr.style.left = ''; qr.style.width = ''; qr.style.bottom = ''; }
-    if (guide) { guide.style.right = ''; guide.style.width = ''; }
+
+  function pinLabels() {
     document.querySelectorAll('.grid-col-label').forEach(function (el) {
-      el.style.width = '';
-      el.style.minWidth = '0';
-      el.style.maxWidth = '';
+      el.style.setProperty('width', '76px', 'important');
+      el.style.setProperty('max-width', '76px', 'important');
+      el.style.setProperty('min-width', '0', 'important');
+      el.style.setProperty('padding', '4px 6px', 'important');
+      el.style.setProperty('box-sizing', 'border-box', 'important');
+      el.style.setProperty('overflow', 'hidden', 'important');
       if (!el.querySelector('.grid-col-kicker')) {
         var k = document.createElement('span');
         k.className = 'grid-col-kicker';
@@ -51,6 +51,16 @@
       if (SHORT[raw]) el.textContent = SHORT[raw];
     });
   }
+
+  function pinChrome() {
+    fillStage();
+    var qr = document.getElementById('qr-stand');
+    var guide = document.getElementById('score-color-guide');
+    if (qr) { qr.style.left = ''; qr.style.width = ''; qr.style.bottom = ''; }
+    if (guide) { guide.style.right = ''; guide.style.width = ''; }
+    pinLabels();
+  }
+
   function buildFocusPanel() {
     var el = document.getElementById('focus-panel');
     var cfg = window.APP_CONFIG;
@@ -65,9 +75,14 @@
     });
     pinChrome();
   }
+
   function start() { fillStage(); buildFocusPanel(); pinChrome(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
   else start();
-  [200, 900, 1800].forEach(function (ms) { setTimeout(start, ms); });
-  window.addEventListener('resize', function () { fillStage(); pinChrome(); });
+  [200, 600, 1200, 2000, 3500, 5000].forEach(function (ms) { setTimeout(pinChrome, ms); });
+  var wrap = document.getElementById('grid-labels');
+  if (wrap && window.MutationObserver) {
+    new MutationObserver(pinLabels).observe(wrap, { childList: true, subtree: true });
+  }
+  window.addEventListener('resize', pinChrome);
 })();
