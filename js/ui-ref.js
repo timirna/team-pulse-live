@@ -4,7 +4,9 @@
   }
   if (window.APP_CONFIG && window.APP_CONFIG.roseWindow) {
     window.APP_CONFIG.roseWindow.fixedWord = '';
-    window.APP_CONFIG.roseWindow.maxWords = 6;
+    window.APP_CONFIG.roseWindow.maxWords = 3;
+    window.APP_CONFIG.roseWindow.minFontPx = 16;
+    window.APP_CONFIG.roseWindow.maxFontPx = 30;
   }
   var SHORT = { 'Customer Service & HR': 'CS & HR' };
   var ICONS = {
