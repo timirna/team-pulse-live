@@ -1,47 +1,34 @@
 html, body {
   margin: 0; height: 100%; overflow: hidden;
   font-family: 'Source Sans 3', system-ui, sans-serif;
-  background: linear-gradient(180deg, #0b1a38 0%, #071018 100%);
+  background: #071018;
 }
-.app-shell { padding: 0 !important; width: 100vw; min-height: 100vh; min-height: 100dvh; }
+.app-shell { padding: 0 !important; width: 100vw; min-height: 100vh; }
 .stage {
   width: 100vw !important; height: 100vh !important; height: 100dvh !important;
   max-width: none !important; aspect-ratio: auto !important;
-  background: linear-gradient(180deg, #102044 0%, #0b1a38 40%, #081224 100%);
+  background: #0b1a38;
 }
 #svg-mount { position: absolute; inset: 0; }
-#svg-mount svg { width: 100% !important; height: 100% !important; display: block; object-fit: cover; object-position: center 42%; }
+#svg-mount svg { width: 100% !important; height: 100% !important; display: block; }
 
 body.painted-bg .stage {
   background-image: url('../assets/painted-house.png') !important;
   background-size: cover !important;
-  background-position: center 48% !important;
+  background-position: center center !important;
   background-repeat: no-repeat !important;
 }
-body.painted-bg #svg-mount svg { background: transparent !important; }
-body.painted-bg #A3_01_SKY_STARS_MOON,
-body.painted-bg #A3_02_TREES_BACKGROUND,
-body.painted-bg #A3_03_HOUSE_STATIC,
-body.painted-bg #A3_04_UPPER_WINDOWS,
-body.painted-bg #A3_09_PORCH_LIGHTS,
-body.painted-bg #A3_10_PLANTS_BUSHES,
-body.painted-bg #A3_10_PLANTS_FRONT_BUSHES,
-body.painted-bg #A3_11_STEPS,
-body.painted-bg #A3_12_GROUND,
-body.painted-bg #A3_13_PATH_LIGHTS,
-body.painted-bg #DOOR_FRAME,
-body.painted-bg #ROSE_FRAME {
+body.painted-bg #svg-mount svg > g {
   opacity: 0 !important;
   visibility: hidden !important;
 }
 body.painted-bg #A3_05_DATA_WINDOWS_LEFT,
 body.painted-bg #A3_06_DATA_WINDOWS_RIGHT,
 body.painted-bg #A3_07_DOOR,
-body.painted-bg #A3_08_ROSE_WINDOW,
-body.painted-bg #DOOR_GLASS,
-body.painted-bg #ROSE_GLASS {
+body.painted-bg #A3_08_ROSE_WINDOW {
+  opacity: 0.55 !important;
+  visibility: visible !important;
   mix-blend-mode: multiply;
-  opacity: 0.65;
 }
 
 .scorecard-hero { position: absolute; top: 1.2%; left: 50%; transform: translateX(-50%); z-index: 10; text-align: center; pointer-events: none; width: min(86%, 920px); }
@@ -62,13 +49,23 @@ body.painted-bg #ROSE_GLASS {
   transform: translate(-50%, -112%);
   width: 76px !important;
   max-width: 76px !important;
-  min-width: 0 !important;
   box-sizing: border-box;
   display: flex; flex-direction: column; align-items: center; gap: 2px;
 }
 .grid-col-kicker { display: block !important; font-size: 9px !important; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: #e7c37a; }
 .grid-col-name { font-size: 11px !important; font-weight: 800; color: #ffffff; text-align: center; }
 .grid-row-label { display: none !important; }
+
+#rose-words { display: flex !important; align-items: center; justify-content: center; }
+.rose-word {
+  font-family: Georgia, serif !important;
+  font-style: italic !important;
+  font-weight: 700 !important;
+  color: #1a140c !important;
+  white-space: nowrap !important;
+  font-size: clamp(16px, 1.8vw, 28px) !important;
+  line-height: 1 !important;
+}
 
 .qr-stand { left: 1.2% !important; bottom: 2% !important; width: min(148px, 18vw) !important; z-index: 9; transition: opacity .45s ease; }
 .qr-stand-board { background: #10192b; border: 2px solid #d7b56a; border-radius: 10px; padding: 8px; }
@@ -77,11 +74,10 @@ body.painted-bg #ROSE_GLASS {
 #qr-container { width: 100% !important; max-width: 116px !important; aspect-ratio: 1; background: #fff; padding: 3px; }
 #score-color-guide { right: 1.2% !important; bottom: 2.2% !important; width: auto !important; max-width: 28vw; padding: 10px 12px; border-radius: 12px; background: #10192b; border: 2px solid #d7b56a; transition: opacity .45s ease; }
 .stage-controls { position: absolute; left: 50%; bottom: 1.6%; transform: translateX(-50%); z-index: 12; }
-.stage-controls .controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
-.stage-controls button { border-radius: 999px; padding: 10px 16px !important; font-size: clamp(12px, 1.2vw, 15px) !important; font-weight: 800; background: rgba(16,28,46,.9); border: 1px solid #d7b56a; color: #e8eef8; }
+.stage-controls .controls { display: flex; gap: 8px; }
+.stage-controls button { border-radius: 999px; padding: 10px 16px !important; font-size: 14px !important; font-weight: 800; background: rgba(16,28,46,.9); border: 1px solid #d7b56a; color: #e8eef8; }
 #btn-play { background: linear-gradient(180deg,#e7d08a,#c9a44a); color: #1a1408; }
 .stage.revealing .focus-panel,
 .stage.revealing .qr-stand,
 .stage.revealing #score-color-guide { opacity: 0 !important; pointer-events: none !important; }
 @media (max-width: 980px) { .focus-panel { display: none; } }
-@media (max-width: 760px) { .scorecard-hero, #score-color-guide, .qr-stand { display: none; } }
