@@ -1,12 +1,9 @@
 (function () {
-  if (window.APP_CONFIG && window.APP_CONFIG.svg) {
-    window.APP_CONFIG.svg.displayViewBox = '0 0 1673.05 940.56';
-  }
   if (window.APP_CONFIG && window.APP_CONFIG.roseWindow) {
     window.APP_CONFIG.roseWindow.fixedWord = '';
     window.APP_CONFIG.roseWindow.maxWords = 1;
     window.APP_CONFIG.roseWindow.minFontPx = 16;
-    window.APP_CONFIG.roseWindow.maxFontPx = 24;
+    window.APP_CONFIG.roseWindow.maxFontPx = 22;
   }
 
   var SHORT = {
@@ -36,7 +33,7 @@
       stage.insertBefore(existing, stage.firstChild);
     }
     existing.src = abs;
-    existing.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:0;pointer-events:none;';
+    existing.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;z-index:0;pointer-events:none;';
     var mount = document.getElementById('svg-mount');
     if (mount) mount.style.setProperty('display', 'none', 'important');
     var vig = document.getElementById('vignette');
@@ -46,30 +43,25 @@
 
   function pinPaintedOverlays() {
     if (!document.body.classList.contains('painted-bg')) return;
+    var hero = document.querySelector('.scorecard-hero');
+    if (hero) {
+      hero.style.top = '0.4%';
+      hero.style.width = '70%';
+    }
     var wrap = document.getElementById('overlay-wrap');
-    if (wrap) {
-      wrap.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;z-index:8;pointer-events:none;';
-    }
+    if (wrap) wrap.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;z-index:8;pointer-events:none;';
     var rose = document.getElementById('rose-words-wrap');
-    if (rose) {
-      rose.style.cssText = 'position:absolute;left:50%;top:34%;transform:translate(-50%,-50%);width:16%;text-align:center;z-index:9;pointer-events:none;';
-    }
-    var words = document.getElementById('rose-words');
-    if (words) {
-      words.style.cssText = 'display:flex;align-items:center;justify-content:center;width:100%;';
-    }
+    if (rose) rose.style.cssText = 'position:absolute;left:50%;top:32%;transform:translate(-50%,-50%);width:14%;text-align:center;z-index:9;';
     var door = document.getElementById('door-result');
-    if (door) {
-      door.style.cssText = 'position:absolute;left:50%;top:62%;transform:translate(-50%,-50%);z-index:9;text-align:center;';
-    }
-    var xs = [32.4, 38.6, 61.4, 66.6, 71.8];
+    if (door) door.style.cssText = 'position:absolute;left:50%;top:64%;transform:translate(-50%,-50%);z-index:9;text-align:center;color:#fff;font-weight:800;font-size:28px;text-shadow:0 2px 8px #000;';
+    var xs = [29.2, 36.4, 61.0, 67.2, 73.4];
     document.querySelectorAll('.grid-col-label').forEach(function (el, i) {
       if (xs[i] == null) return;
       el.style.setProperty('left', xs[i] + '%', 'important');
-      el.style.setProperty('top', '48%', 'important');
-      el.style.setProperty('transform', 'translate(-50%,-110%)', 'important');
-      el.style.setProperty('width', '72px', 'important');
-      el.style.setProperty('max-width', '72px', 'important');
+      el.style.setProperty('top', '58%', 'important');
+      el.style.setProperty('transform', 'translate(-50%,-100%)', 'important');
+      el.style.setProperty('width', '70px', 'important');
+      el.style.setProperty('max-width', '70px', 'important');
     });
   }
 
@@ -78,21 +70,19 @@
     var abs = new URL('assets/painted-house.png', location.href).href;
     var img = new Image();
     img.onload = function () { applyPainted(abs); };
-    img.src = abs + '?v=paint20';
+    img.src = abs + '?v=paint21';
   }
 
   function fillStage() {
     var stage = document.getElementById('stage');
     if (!stage) return;
-    stage.style.aspectRatio = 'auto';
     stage.style.width = '100vw';
     stage.style.height = '100vh';
+    stage.style.aspectRatio = 'auto';
   }
 
   function pinLabels() {
     document.querySelectorAll('.grid-col-label').forEach(function (el) {
-      el.style.setProperty('width', '72px', 'important');
-      el.style.setProperty('max-width', '72px', 'important');
       if (!el.querySelector('.grid-col-kicker')) {
         var k = document.createElement('span');
         k.className = 'grid-col-kicker';
@@ -109,10 +99,6 @@
 
   function pinChrome() {
     fillStage();
-    var qr = document.getElementById('qr-stand');
-    var guide = document.getElementById('score-color-guide');
-    if (qr) { qr.style.left = ''; qr.style.width = ''; qr.style.bottom = ''; }
-    if (guide) { guide.style.right = ''; guide.style.width = ''; }
     pinLabels();
     enablePaintedIfPresent();
   }
@@ -154,16 +140,13 @@
     buildFocusPanel();
     pinChrome();
     bindRevealChrome();
-    enablePaintedIfPresent();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
   else start();
-  [300, 900, 1800, 3200].forEach(function (ms) {
+  [400, 1200, 2500].forEach(function (ms) {
     setTimeout(function () { pinChrome(); bindRevealChrome(); }, ms);
   });
   var wrap = document.getElementById('grid-labels');
-  if (wrap && window.MutationObserver) {
-    new MutationObserver(pinLabels).observe(wrap, { childList: true, subtree: true });
-  }
+  if (wrap && window.MutationObserver) new MutationObserver(pinLabels).observe(wrap, { childList: true, subtree: true });
   window.addEventListener('resize', pinChrome);
 })();
