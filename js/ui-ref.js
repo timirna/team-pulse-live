@@ -5,12 +5,8 @@
   if (window.APP_CONFIG && window.APP_CONFIG.roseWindow) {
     window.APP_CONFIG.roseWindow.fixedWord = '';
     window.APP_CONFIG.roseWindow.maxWords = 1;
-    window.APP_CONFIG.roseWindow.minFontPx = 18;
-    window.APP_CONFIG.roseWindow.maxFontPx = 26;
-  }
-  if (window.APP_CONFIG) {
-    window.APP_CONFIG.facetedPaneShading = true;
-    window.APP_CONFIG.colorMode = 'interpolate';
+    window.APP_CONFIG.roseWindow.minFontPx = 16;
+    window.APP_CONFIG.roseWindow.maxFontPx = 24;
   }
 
   var SHORT = {
@@ -42,12 +38,39 @@
     existing.src = abs;
     existing.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:0;pointer-events:none;';
     var mount = document.getElementById('svg-mount');
-    if (mount) {
-      mount.style.setProperty('opacity', '0', 'important');
-      mount.style.setProperty('visibility', 'hidden', 'important');
-    }
+    if (mount) mount.style.setProperty('display', 'none', 'important');
     var vig = document.getElementById('vignette');
     if (vig) vig.style.setProperty('display', 'none', 'important');
+    pinPaintedOverlays();
+  }
+
+  function pinPaintedOverlays() {
+    if (!document.body.classList.contains('painted-bg')) return;
+    var wrap = document.getElementById('overlay-wrap');
+    if (wrap) {
+      wrap.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;z-index:8;pointer-events:none;';
+    }
+    var rose = document.getElementById('rose-words-wrap');
+    if (rose) {
+      rose.style.cssText = 'position:absolute;left:50%;top:34%;transform:translate(-50%,-50%);width:16%;text-align:center;z-index:9;pointer-events:none;';
+    }
+    var words = document.getElementById('rose-words');
+    if (words) {
+      words.style.cssText = 'display:flex;align-items:center;justify-content:center;width:100%;';
+    }
+    var door = document.getElementById('door-result');
+    if (door) {
+      door.style.cssText = 'position:absolute;left:50%;top:62%;transform:translate(-50%,-50%);z-index:9;text-align:center;';
+    }
+    var xs = [32.4, 38.6, 61.4, 66.6, 71.8];
+    document.querySelectorAll('.grid-col-label').forEach(function (el, i) {
+      if (xs[i] == null) return;
+      el.style.setProperty('left', xs[i] + '%', 'important');
+      el.style.setProperty('top', '48%', 'important');
+      el.style.setProperty('transform', 'translate(-50%,-110%)', 'important');
+      el.style.setProperty('width', '72px', 'important');
+      el.style.setProperty('max-width', '72px', 'important');
+    });
   }
 
   function enablePaintedIfPresent() {
@@ -55,7 +78,7 @@
     var abs = new URL('assets/painted-house.png', location.href).href;
     var img = new Image();
     img.onload = function () { applyPainted(abs); };
-    img.src = abs + '?v=paint19';
+    img.src = abs + '?v=paint20';
   }
 
   function fillStage() {
@@ -68,9 +91,8 @@
 
   function pinLabels() {
     document.querySelectorAll('.grid-col-label').forEach(function (el) {
-      el.style.setProperty('width', '76px', 'important');
-      el.style.setProperty('max-width', '76px', 'important');
-      el.style.setProperty('overflow', 'hidden', 'important');
+      el.style.setProperty('width', '72px', 'important');
+      el.style.setProperty('max-width', '72px', 'important');
       if (!el.querySelector('.grid-col-kicker')) {
         var k = document.createElement('span');
         k.className = 'grid-col-kicker';
@@ -82,6 +104,7 @@
       var raw = (el.textContent || '').trim();
       if (SHORT[raw]) el.textContent = SHORT[raw];
     });
+    pinPaintedOverlays();
   }
 
   function pinChrome() {
@@ -135,8 +158,8 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
   else start();
-  [300, 800, 1600, 3000].forEach(function (ms) {
-    setTimeout(function () { pinChrome(); bindRevealChrome(); enablePaintedIfPresent(); }, ms);
+  [300, 900, 1800, 3200].forEach(function (ms) {
+    setTimeout(function () { pinChrome(); bindRevealChrome(); }, ms);
   });
   var wrap = document.getElementById('grid-labels');
   if (wrap && window.MutationObserver) {
