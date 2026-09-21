@@ -13,11 +13,12 @@ html, body {
 #svg-mount svg { width: 100% !important; height: 100% !important; display: block; object-fit: cover; object-position: center 42%; }
 
 body.painted-bg .stage {
-  background-image: var(--painted-house);
-  background-size: cover;
-  background-position: center 48%;
-  background-repeat: no-repeat;
+  background-image: url('../assets/painted-house.png') !important;
+  background-size: cover !important;
+  background-position: center 48% !important;
+  background-repeat: no-repeat !important;
 }
+body.painted-bg #svg-mount svg { background: transparent !important; }
 body.painted-bg #A3_01_SKY_STARS_MOON,
 body.painted-bg #A3_02_TREES_BACKGROUND,
 body.painted-bg #A3_03_HOUSE_STATIC,
@@ -31,7 +32,7 @@ body.painted-bg #A3_13_PATH_LIGHTS,
 body.painted-bg #DOOR_FRAME,
 body.painted-bg #ROSE_FRAME {
   opacity: 0 !important;
-  pointer-events: none;
+  visibility: hidden !important;
 }
 body.painted-bg #A3_05_DATA_WINDOWS_LEFT,
 body.painted-bg #A3_06_DATA_WINDOWS_RIGHT,
@@ -40,15 +41,8 @@ body.painted-bg #A3_08_ROSE_WINDOW,
 body.painted-bg #DOOR_GLASS,
 body.painted-bg #ROSE_GLASS {
   mix-blend-mode: multiply;
-  opacity: 0.72;
+  opacity: 0.65;
 }
-
-#A3_05_DATA_WINDOWS_LEFT path,
-#A3_06_DATA_WINDOWS_RIGHT path,
-#ROSE_GLASS path {
-  filter: drop-shadow(0 0 3px rgba(255, 186, 90, 0.28));
-}
-.env-glow-window, .env-glow-door, .env-glow-rose { mix-blend-mode: screen; }
 
 .scorecard-hero { position: absolute; top: 1.2%; left: 50%; transform: translateX(-50%); z-index: 10; text-align: center; pointer-events: none; width: min(86%, 920px); }
 .scorecard-title { margin: 0; font-family: Cinzel, Georgia, serif; font-weight: 700; font-size: clamp(18px, 3.2vw, 52px); letter-spacing: .04em; color: #f3d48a; display: flex; align-items: center; justify-content: center; gap: clamp(8px, 1.2vw, 16px); }
