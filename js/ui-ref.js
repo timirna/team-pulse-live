@@ -51,13 +51,20 @@
     function tryNext() {
       if (i >= PAINTED_PATHS.length) return;
       var path = PAINTED_PATHS[i++];
+      var abs = new URL(path, location.href).href;
       var img = new Image();
       img.onload = function () {
         document.body.classList.add('painted-bg');
-        document.body.style.setProperty('--painted-house', 'url("' + path + '")');
+        var stage = document.getElementById('stage');
+        if (stage) {
+          stage.style.setProperty('background-image', 'url("' + abs + '")', 'important');
+          stage.style.setProperty('background-size', 'cover', 'important');
+          stage.style.setProperty('background-position', 'center 48%', 'important');
+          stage.style.setProperty('background-repeat', 'no-repeat', 'important');
+        }
       };
       img.onerror = tryNext;
-      img.src = path + '?v=painted1';
+      img.src = abs + (abs.indexOf('?') >= 0 ? '&' : '?') + 'v=painted2';
     }
     tryNext();
   }
@@ -159,7 +166,7 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
   else start();
-  [200, 600, 1200, 2000, 3500, 5000].forEach(function (ms) { setTimeout(function () { pinChrome(); bindRevealChrome(); }, ms); });
+  [200, 600, 1200, 2000, 3500, 5000].forEach(function (ms) { setTimeout(function () { pinChrome(); bindRevealChrome(); enablePaintedIfPresent(); }, ms); });
   var wrap = document.getElementById('grid-labels');
   if (wrap && window.MutationObserver) {
     new MutationObserver(pinLabels).observe(wrap, { childList: true, subtree: true });
