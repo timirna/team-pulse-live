@@ -15,7 +15,7 @@ html, body {
 body.painted-bg .stage {
   background-image: var(--painted-house);
   background-size: cover;
-  background-position: center 42%;
+  background-position: center 48%;
   background-repeat: no-repeat;
 }
 body.painted-bg #A3_01_SKY_STARS_MOON,
@@ -27,19 +27,25 @@ body.painted-bg #A3_10_PLANTS_BUSHES,
 body.painted-bg #A3_10_PLANTS_FRONT_BUSHES,
 body.painted-bg #A3_11_STEPS,
 body.painted-bg #A3_12_GROUND,
-body.painted-bg #A3_13_PATH_LIGHTS {
+body.painted-bg #A3_13_PATH_LIGHTS,
+body.painted-bg #DOOR_FRAME,
+body.painted-bg #ROSE_FRAME {
   opacity: 0 !important;
   pointer-events: none;
 }
+body.painted-bg #A3_05_DATA_WINDOWS_LEFT,
+body.painted-bg #A3_06_DATA_WINDOWS_RIGHT,
+body.painted-bg #A3_07_DOOR,
+body.painted-bg #A3_08_ROSE_WINDOW,
+body.painted-bg #DOOR_GLASS,
+body.painted-bg #ROSE_GLASS {
+  mix-blend-mode: multiply;
+  opacity: 0.72;
+}
 
 #A3_05_DATA_WINDOWS_LEFT path,
-#A3_05_DATA_WINDOWS_LEFT polygon,
 #A3_06_DATA_WINDOWS_RIGHT path,
-#A3_06_DATA_WINDOWS_RIGHT polygon,
-#ROSE_GLASS path,
-#ROSE_GLASS polygon,
-#A3_08_ROSE_WINDOW path,
-#A3_08_ROSE_WINDOW polygon {
+#ROSE_GLASS path {
   filter: drop-shadow(0 0 3px rgba(255, 186, 90, 0.28));
 }
 .env-glow-window, .env-glow-door, .env-glow-rose { mix-blend-mode: screen; }
