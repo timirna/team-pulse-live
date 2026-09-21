@@ -41,19 +41,18 @@
     var darkUrl = new URL('assets/painted-house-dark.png', location.href).href;
     var dark = ensureImg('painted-house-dark', 0);
     var bright = ensureImg('painted-house-img', 1);
-    if (dark) {
-      dark.src = darkUrl + '?v=dark1';
-      dark.style.opacity = '1';
-    }
+    if (dark) { dark.src = darkUrl + '?v=dark1'; dark.style.opacity = '1'; }
     if (bright) {
       bright.src = brightUrl;
-      bright.style.opacity = document.getElementById('stage') && document.getElementById('stage').classList.contains('revealing') ? '1' : '0';
+      bright.style.opacity = document.querySelector('#stage.revealing') ? '1' : '0';
     }
     var mount = document.getElementById('svg-mount');
     if (mount) mount.style.setProperty('display', 'none', 'important');
     var vig = document.getElementById('vignette');
     if (vig) vig.style.setProperty('display', 'none', 'important');
     pinPaintedOverlays();
+    var play = document.getElementById('btn-play');
+    if (play) play.disabled = false;
   }
 
   function pinPaintedOverlays() {
@@ -94,7 +93,6 @@
     if (!stage) return;
     stage.style.width = '100vw';
     stage.style.height = '100vh';
-    stage.style.aspectRatio = 'auto';
   }
 
   function pinLabels() {
@@ -135,13 +133,12 @@
       replay.addEventListener('click', function () {
         stage.classList.remove('revealing');
         setLit(false);
-        setTimeout(function () {
-          stage.classList.add('revealing');
-          setLit(true);
-        }, 80);
+        setTimeout(function () { stage.classList.add('revealing'); setLit(true); }, 200);
       });
       replay._taylerBound = true;
     }
+    if (play) play.disabled = false;
+    if (replay) replay.disabled = false;
   }
 
   function buildFocusPanel() {
