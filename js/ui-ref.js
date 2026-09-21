@@ -21,19 +21,34 @@
     q9: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.22 2.53C11.09 5.01 12.76 4 14.5 4 17 4 19 6 19 8.5c0 3.78-3.4 6.86-8.55 11.54z"/></svg>'
   };
 
-  function applyPainted(abs) {
-    document.body.classList.add('painted-bg');
+  var IMG_CSS = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;pointer-events:none;';
+
+  function ensureImg(id, z) {
     var stage = document.getElementById('stage');
-    if (!stage) return;
-    var existing = document.getElementById('painted-house-img');
-    if (!existing) {
-      existing = document.createElement('img');
-      existing.id = 'painted-house-img';
-      existing.alt = '';
-      stage.insertBefore(existing, stage.firstChild);
+    var el = document.getElementById(id);
+    if (!el && stage) {
+      el = document.createElement('img');
+      el.id = id;
+      el.alt = '';
+      stage.insertBefore(el, stage.firstChild);
     }
-    existing.src = abs;
-    existing.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;z-index:0;pointer-events:none;';
+    if (el) el.style.cssText = IMG_CSS + 'z-index:' + z + ';transition:opacity 1.6s ease;';
+    return el;
+  }
+
+  function applyPainted(brightUrl) {
+    document.body.classList.add('painted-bg');
+    var darkUrl = new URL('assets/painted-house-dark.png', location.href).href;
+    var dark = ensureImg('painted-house-dark', 0);
+    var bright = ensureImg('painted-house-img', 1);
+    if (dark) {
+      dark.src = darkUrl + '?v=dark1';
+      dark.style.opacity = '1';
+    }
+    if (bright) {
+      bright.src = brightUrl;
+      bright.style.opacity = document.getElementById('stage') && document.getElementById('stage').classList.contains('revealing') ? '1' : '0';
+    }
     var mount = document.getElementById('svg-mount');
     if (mount) mount.style.setProperty('display', 'none', 'important');
     var vig = document.getElementById('vignette');
@@ -44,10 +59,7 @@
   function pinPaintedOverlays() {
     if (!document.body.classList.contains('painted-bg')) return;
     var hero = document.querySelector('.scorecard-hero');
-    if (hero) {
-      hero.style.top = '0.4%';
-      hero.style.width = '70%';
-    }
+    if (hero) { hero.style.top = '0.4%'; hero.style.width = '70%'; }
     var wrap = document.getElementById('overlay-wrap');
     if (wrap) wrap.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;z-index:8;pointer-events:none;';
     var rose = document.getElementById('rose-words-wrap');
@@ -61,8 +73,12 @@
       el.style.setProperty('top', '58%', 'important');
       el.style.setProperty('transform', 'translate(-50%,-100%)', 'important');
       el.style.setProperty('width', '70px', 'important');
-      el.style.setProperty('max-width', '70px', 'important');
     });
+  }
+
+  function setLit(on) {
+    var bright = document.getElementById('painted-house-img');
+    if (bright) bright.style.opacity = on ? '1' : '0';
   }
 
   function enablePaintedIfPresent() {
@@ -70,7 +86,7 @@
     var abs = new URL('assets/painted-house.png', location.href).href;
     var img = new Image();
     img.onload = function () { applyPainted(abs); };
-    img.src = abs + '?v=paint21';
+    img.src = abs + '?v=paint22';
   }
 
   function fillStage() {
@@ -109,13 +125,20 @@
     var replay = document.getElementById('btn-replay');
     if (!stage) return;
     if (play && !play._taylerBound) {
-      play.addEventListener('click', function () { stage.classList.add('revealing'); });
+      play.addEventListener('click', function () {
+        stage.classList.add('revealing');
+        setLit(true);
+      });
       play._taylerBound = true;
     }
     if (replay && !replay._taylerBound) {
       replay.addEventListener('click', function () {
         stage.classList.remove('revealing');
-        setTimeout(function () { stage.classList.add('revealing'); }, 80);
+        setLit(false);
+        setTimeout(function () {
+          stage.classList.add('revealing');
+          setLit(true);
+        }, 80);
       });
       replay._taylerBound = true;
     }
