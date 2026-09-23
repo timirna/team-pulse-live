@@ -23,17 +23,18 @@
     { teamId: 'team5', x: 1248, y: 493, w: 74, h: 179 }  // Customer Service & HR
   ];
 
-  // Coordinates are fractions of the glass interior. Edges follow the painted
-  // pointed arch, central diamonds and lower diagonal lead seams. Each path is
-  // inset from the frame; no tint rectangle crosses a lead line.
+  // Seven contiguous regions traced from the painted window's lead seams:
+  // two blue arch wings, the yellow center diamond, two warm side fields and
+  // two lower fields. Curves follow the real pointed arch and green/cyan seam.
+  // All five lower windows share this design at slightly different widths.
   var FACETS = [
-    'M .50 .015 Q .25 .075 .025 .18 L .025 .35 L .26 .28 L .50 .15 Z',
-    'M .50 .015 Q .75 .075 .975 .18 L .975 .35 L .74 .28 L .50 .15 Z',
-    'M .025 .36 L .26 .29 L .49 .44 L .25 .57 L .025 .48 Z',
-    'M .50 .16 L .73 .29 L .76 .49 L .50 .66 L .24 .49 L .27 .29 Z',
-    'M .975 .36 L .74 .29 L .51 .44 L .75 .57 L .975 .48 Z',
-    'M .025 .49 L .25 .58 L .49 .67 L .49 .985 L .025 .985 Z',
-    'M .975 .49 L .75 .58 L .51 .67 L .51 .985 L .975 .985 Z'
+    'M .50 .01 C .29 .07 .09 .20 .02 .35 L .25 .29 C .35 .22 .43 .16 .50 .14 Z',
+    'M .50 .01 C .71 .07 .91 .20 .98 .35 L .75 .29 C .65 .22 .57 .16 .50 .14 Z',
+    'M .50 .14 C .41 .20 .33 .26 .25 .29 L .50 .41 L .75 .29 C .67 .26 .59 .20 .50 .14 Z',
+    'M .02 .35 L .25 .29 L .50 .41 L .50 .53 C .31 .59 .15 .66 .02 .76 Z',
+    'M .98 .35 L .75 .29 L .50 .41 L .50 .53 C .69 .59 .85 .66 .98 .76 Z',
+    'M .02 .76 C .15 .66 .31 .59 .50 .53 L .50 .99 L .02 .99 Z',
+    'M .98 .76 C .85 .66 .69 .59 .50 .53 L .50 .99 L .98 .99 Z'
   ];
 
   var processed = null;
