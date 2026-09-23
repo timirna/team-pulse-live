@@ -122,6 +122,9 @@ window.PaneMapping = (function () {
       candidates.forEach(function (el) {
         var c = centerRelativeTo(el, winEl);
         var idx = Math.floor((c.y - winBBox.y) / bandHeight);
+        // Hidden SVG groups can report a zero-height box in painted mode.
+        // Keep mapping available so live data and HTML results can still boot.
+        if (!isFinite(idx)) idx = 0;
         if (idx < 0) idx = 0;
         if (idx >= N) idx = N - 1;
         bands[idx].push({ el: el, center: c });
@@ -234,3 +237,4 @@ window.PaneMapping = (function () {
     renderDebugLabels: renderDebugLabels
   };
 })();
+
