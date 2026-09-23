@@ -1,9 +1,9 @@
 'use strict';
 (() => {
  const cfg=window.APP_CONFIG,$=id=>document.getElementById(id);
- let imported=false;try{const saved=JSON.parse(localStorage.getItem('chapel-event')||'null');if(saved){cfg.dataSource.liveDataUrl=saved.source;cfg.qrCode.url=saved.form}}catch(e){console.warn('Event settings unavailable',e)}
+ let imported=false,sourceVersion=0;try{const saved=JSON.parse(localStorage.getItem('chapel-event')||'null');if(saved){cfg.dataSource.liveDataUrl=saved.source;cfg.qrCode.url=saved.form}}catch(e){console.warn('Event settings unavailable',e)}
  const parts=['house','window_left_1','window_left_2','window_right_3','window_right_2','window_right_1','roof_left_large','roof_left_small','roof_right_large','roof_right_small','rose','door','porch_left','porch_right','path_far_left','path_far_right','path_inner_left','path_inner_right','ivy'];
- let data=null,loading=false,frame=0,run=0,ready=false,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ let data=null,loading=false,frame=0,run=0,ready=false,reduced=new URLSearchParams(location.search).get('motion')==='reduced';
  const setStatus=text=>$('status').textContent=text;
  function controls(busy){$('play').disabled=busy||!ready||!data;$('replay').disabled=busy||!ready||!data}
  
@@ -31,8 +31,8 @@
   window.dispatchEvent(new CustomEvent('team-pulse:data',{detail:next}));
  }
  async function refresh(){
-  if(loading||imported)return;loading=true;$('refresh').disabled=true;
-  try{const source=await DataSource.load();if(source.source!=='live')throw Error('Live source is not configured');render(source.aggregated?DataProcessing.fromAggregated(source.aggregated,cfg):DataProcessing.process(source.rows,cfg));setStatus('Live results updated · '+data.usedRows+' responses');}
+  if(loading||imported)return;loading=true;const version=sourceVersion;$('refresh').disabled=true;
+  try{const source=await DataSource.load();if(version!==sourceVersion||imported)return;if(source.source!=='live')throw Error('Live source is not configured');render(source.aggregated?DataProcessing.fromAggregated(source.aggregated,cfg):DataProcessing.process(source.rows,cfg));if(!document.body.classList.contains('animating'))setStatus('Live results updated · '+data.usedRows+' responses');}
   catch(error){console.error(error);setStatus(data?'Update unavailable. Showing the last confirmed results.':'Survey connection unavailable. Use Refresh results to retry.');}
   finally{loading=false;$('refresh').disabled=false;controls(document.body.classList.contains('animating'))}
  }
@@ -49,8 +49,8 @@
  if(window.AudioManager)AudioManager.init(cfg);
  $('sound').onclick=()=>{const muted=!AudioManager.isMuted();AudioManager.setMuted(muted);$('sound').textContent=muted?'Sound off':'Sound on';$('sound').setAttribute('aria-pressed',String(muted))};
  $('settings-open').onclick=()=>{$('source-url').value=cfg.dataSource.liveDataUrl;$('form-url').value=cfg.qrCode.url;$('settings').showModal()};
- $('save-settings').onclick=()=>{try{const source=new URL($('source-url').value),form=new URL($('form-url').value);if(source.protocol!=='https:'||form.protocol!=='https:')throw Error('Use HTTPS URLs.');localStorage.setItem('chapel-event',JSON.stringify({source:source.href,form:form.href}));cfg.dataSource.liveDataUrl=source.href;cfg.qrCode.url=form.href;imported=false;QrDisplay.render($('qr'),cfg);$('survey-link').href=form.href;$('setup-status').textContent='Connection saved for this browser.';refresh()}catch(e){$('setup-status').textContent=e.message}};
+ $('save-settings').onclick=()=>{try{const source=new URL($('source-url').value),form=new URL($('form-url').value);if(source.protocol!=='https:'||form.protocol!=='https:')throw Error('Use HTTPS URLs.');localStorage.setItem('chapel-event',JSON.stringify({source:source.href,form:form.href}));sourceVersion++;cfg.dataSource.liveDataUrl=source.href;cfg.qrCode.url=form.href;imported=false;QrDisplay.render($('qr'),cfg);$('survey-link').href=form.href;$('setup-status').textContent='Connection saved for this browser.';refresh()}catch(e){$('setup-status').textContent=e.message}};
  $('default-settings').onclick=()=>{localStorage.removeItem('chapel-event');location.reload()};
- $('csv-file').onchange=async()=>{const file=$('csv-file').files[0];if(!file)return;try{const next=DataProcessing.process(DataSource.parseCsv(await file.text()),cfg);if(!next.usedRows||next.missingColumns.some(q=>cfg.scoredQuestionOrder.includes(q)||q==='q1_team'))throw Error('CSV headings or team names do not match this survey.');imported=true;render(next);controls(false);$('setup-status').textContent='Loaded '+next.usedRows+' responses. This file stays in this browser tab.';setStatus('Imported event · '+next.usedRows+' responses')}catch(e){$('setup-status').textContent=e.message}};
+ $('csv-file').onchange=async()=>{const file=$('csv-file').files[0];if(!file)return;try{const next=DataProcessing.process(DataSource.parseCsv(await file.text()),cfg);if(!next.usedRows||next.missingColumns.some(q=>cfg.scoredQuestionOrder.includes(q)||q==='q1_team'))throw Error('CSV headings or team names do not match this survey.');sourceVersion++;imported=true;render(next);controls(false);$('setup-status').textContent='Loaded '+next.usedRows+' responses. This file stays in this browser tab.';setStatus('Imported event · '+next.usedRows+' responses')}catch(e){$('setup-status').textContent=e.message}};
  refresh();const timer=setInterval(refresh,10000);window.addEventListener('beforeunload',()=>{clearInterval(timer);cancelAnimationFrame(frame)});
 })();
