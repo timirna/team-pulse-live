@@ -21,10 +21,11 @@
     q9: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.22 2.53C11.09 5.01 12.76 4 14.5 4 17 4 19 6 19 8.5c0 3.78-3.4 6.86-8.55 11.54z"/></svg>'
   };
 
+  var ART_W = 1726;
+  var ART_H = 911;
   var BASE = 'assets/layers/';
   var ALWAYS = [
-    '00_bg.png',
-    'house_dark.png',
+    '00_bg.png', 'house_dark.png',
     'window_left_1_dark.png', 'window_left_2_dark.png',
     'window_right_1_dark.png', 'window_right_2_dark.png', 'window_right_3_dark.png',
     'roof_left_small_dark.png', 'roof_left_large_dark.png',
@@ -48,6 +49,17 @@
   var layerBuilt = false;
   var revealTimer = 0;
 
+  function sizeFrame() {
+    var el = document.getElementById('layer-stack');
+    if (!el) return;
+    var sw = window.innerWidth;
+    var sh = window.innerHeight;
+    var scale = Math.min(sw / ART_W, sh / ART_H);
+    var w = Math.round(ART_W * scale);
+    var h = Math.round(ART_H * scale);
+    el.style.cssText = 'position:absolute;left:50%;top:50%;width:' + w + 'px;height:' + h + 'px;margin-left:-' + (w/2) + 'px;margin-top:-' + (h/2) + 'px;z-index:1;pointer-events:none;overflow:hidden;';
+  }
+
   function stack() {
     var stage = document.getElementById('stage');
     if (!stage) return null;
@@ -55,9 +67,9 @@
     if (!el) {
       el = document.createElement('div');
       el.id = 'layer-stack';
-      el.style.cssText = 'position:absolute;inset:0;z-index:1;pointer-events:none;';
       stage.insertBefore(el, stage.firstChild);
     }
+    sizeFrame();
     return el;
   }
 
@@ -71,14 +83,17 @@
       img.alt = '';
       wrap.appendChild(img);
     }
-    img.src = BASE + file + '?v=layers1';
-    img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center;pointer-events:none;z-index:' + z + ';opacity:' + (lit ? '0' : '1') + ';transition:opacity 0.9s ease;';
+    img.src = BASE + file + '?v=layers2';
+    img.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;object-fit:fill;pointer-events:none;z-index:' + z + ';opacity:' + (lit ? '0' : '1') + ';transition:opacity 0.9s ease;';
     img.dataset.lit = lit ? '1' : '0';
     return img;
   }
 
   function buildLayers() {
-    if (layerBuilt) return;
+    if (layerBuilt) {
+      sizeFrame();
+      return;
+    }
     var probe = new Image();
     probe.onload = function () {
       document.body.classList.add('painted-bg');
@@ -93,9 +108,10 @@
         if (n) n.style.display = 'none';
       });
       layerBuilt = true;
+      sizeFrame();
       pinPaintedOverlays();
     };
-    probe.src = BASE + '00_bg.png?v=layers1';
+    probe.src = BASE + '00_bg.png?v=layers2';
   }
 
   function setLit(on) {
@@ -106,7 +122,7 @@
       return;
     }
     STEPS.forEach(function (group, gi) {
-      revealTimer = setTimeout(function () {
+      setTimeout(function () {
         group.forEach(function (f) {
           var img = document.getElementById('pl-' + f.replace(/\W/g, '-'));
           if (img) img.style.opacity = '1';
@@ -116,11 +132,11 @@
   }
 
   function pinPaintedOverlays() {
-    if (!document.body.classList.contains('painted-bg')) return;
-    var hero = document.querySelector('.scorecard-hero');
-    if (hero) { hero.style.top = '0.4%'; hero.style.width = '70%'; }
+    var frame = document.getElementById('layer-stack');
     var wrap = document.getElementById('overlay-wrap');
-    if (wrap) wrap.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;z-index:20;pointer-events:none;';
+    if (frame && wrap) {
+      wrap.style.cssText = 'position:absolute;left:' + frame.style.left + ';top:' + frame.style.top + ';width:' + frame.style.width + ';height:' + frame.style.height + ';margin-left:' + frame.style.marginLeft + ';margin-top:' + frame.style.marginTop + ';z-index:20;pointer-events:none;';
+    }
     var rose = document.getElementById('rose-words-wrap');
     if (rose) rose.style.cssText = 'position:absolute;left:50%;top:32%;transform:translate(-50%,-50%);width:14%;text-align:center;z-index:21;';
     var door = document.getElementById('door-result');
@@ -140,6 +156,7 @@
     if (!stage) return;
     stage.style.width = '100vw';
     stage.style.height = '100vh';
+    stage.style.background = '#061428';
   }
 
   function pinLabels() {
@@ -162,6 +179,8 @@
     fillStage();
     pinLabels();
     buildLayers();
+    sizeFrame();
+    pinPaintedOverlays();
   }
 
   function bindRevealChrome() {
