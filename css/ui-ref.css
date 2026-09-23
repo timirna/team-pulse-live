@@ -59,31 +59,16 @@ body.painted-live-glass #painted-data-overlay {
   z-index:2;
   pointer-events:none;
   overflow:visible;
-  isolation:isolate;
 }
 
 body.painted-live-glass .painted-data-pane {
   opacity:0;
   transition:opacity .62s ease;
-  filter:url(#paintedPaneGlow);
 }
 
-body.painted-live-glass .painted-pane-base,
 body.painted-live-glass .painted-pane-facet {
   mix-blend-mode:color;
-}
-
-body.painted-live-glass .painted-pane-base { opacity:.86; }
-body.painted-live-glass .painted-pane-dark { opacity:.58; }
-body.painted-live-glass .painted-pane-light { opacity:.48; }
-
-body.painted-live-glass .painted-pane-highlight {
-  fill:none;
-  stroke:rgba(255,244,210,.46);
-  stroke-width:.75;
-  stroke-linecap:round;
-  opacity:.45;
-  mix-blend-mode:screen;
+  opacity:.78;
 }
 
 body.painted-live-glass .painted-data-pane.is-lit {
@@ -137,3 +122,4 @@ body.painted-live-glass .stage.revealing #score-color-guide {
   opacity:0 !important;
   pointer-events:none !important;
 }
+
