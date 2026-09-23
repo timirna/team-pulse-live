@@ -21,38 +21,98 @@
     q9: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.22 2.53C11.09 5.01 12.76 4 14.5 4 17 4 19 6 19 8.5c0 3.78-3.4 6.86-8.55 11.54z"/></svg>'
   };
 
-  var IMG_CSS = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;pointer-events:none;';
+  var BASE = 'assets/layers/';
+  var ALWAYS = [
+    '00_bg.png',
+    'house_dark.png',
+    'window_left_1_dark.png', 'window_left_2_dark.png',
+    'window_right_1_dark.png', 'window_right_2_dark.png', 'window_right_3_dark.png',
+    'roof_left_small_dark.png', 'roof_left_large_dark.png',
+    'roof_right_small_dark.png', 'roof_right_large_dark.png',
+    'rose_dark.png', 'door_dark.png',
+    'porch_left_dark.png', 'porch_right_dark.png',
+    'path_far_left_dark.png', 'path_inner_left_dark.png',
+    'path_inner_right_dark.png', 'path_far_right_dark.png'
+  ];
+  var STEPS = [
+    ['house_light.png', 'ivy_light.png'],
+    ['roof_left_small_light.png', 'roof_left_large_light.png', 'roof_right_small_light.png', 'roof_right_large_light.png'],
+    ['window_left_1_light.png', 'window_left_2_light.png'],
+    ['window_right_1_light.png', 'window_right_2_light.png', 'window_right_3_light.png'],
+    ['rose_light.png'],
+    ['door_light.png'],
+    ['porch_left_light.png', 'porch_right_light.png'],
+    ['path_far_left_light.png', 'path_inner_left_light.png', 'path_inner_right_light.png', 'path_far_right_light.png']
+  ];
 
-  function ensureImg(id, z) {
+  var layerBuilt = false;
+  var revealTimer = 0;
+
+  function stack() {
     var stage = document.getElementById('stage');
-    var el = document.getElementById(id);
-    if (!el && stage) {
-      el = document.createElement('img');
-      el.id = id;
-      el.alt = '';
+    if (!stage) return null;
+    var el = document.getElementById('layer-stack');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'layer-stack';
+      el.style.cssText = 'position:absolute;inset:0;z-index:1;pointer-events:none;';
       stage.insertBefore(el, stage.firstChild);
     }
-    if (el) el.style.cssText = IMG_CSS + 'z-index:' + z + ';transition:opacity 1.6s ease;';
     return el;
   }
 
-  function applyPainted(brightUrl) {
-    document.body.classList.add('painted-bg');
-    var darkUrl = new URL('assets/painted-house-dark.png', location.href).href;
-    var dark = ensureImg('painted-house-dark', 0);
-    var bright = ensureImg('painted-house-img', 1);
-    if (dark) { dark.src = darkUrl + '?v=dark1'; dark.style.opacity = '1'; }
-    if (bright) {
-      bright.src = brightUrl;
-      bright.style.opacity = document.querySelector('#stage.revealing') ? '1' : '0';
+  function addPlate(file, z, lit) {
+    var wrap = stack();
+    var id = 'pl-' + file.replace(/\W/g, '-');
+    var img = document.getElementById(id);
+    if (!img) {
+      img = document.createElement('img');
+      img.id = id;
+      img.alt = '';
+      wrap.appendChild(img);
     }
-    var mount = document.getElementById('svg-mount');
-    if (mount) mount.style.setProperty('display', 'none', 'important');
-    var vig = document.getElementById('vignette');
-    if (vig) vig.style.setProperty('display', 'none', 'important');
-    pinPaintedOverlays();
-    var play = document.getElementById('btn-play');
-    if (play) play.disabled = false;
+    img.src = BASE + file + '?v=layers1';
+    img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center;pointer-events:none;z-index:' + z + ';opacity:' + (lit ? '0' : '1') + ';transition:opacity 0.9s ease;';
+    img.dataset.lit = lit ? '1' : '0';
+    return img;
+  }
+
+  function buildLayers() {
+    if (layerBuilt) return;
+    var probe = new Image();
+    probe.onload = function () {
+      document.body.classList.add('painted-bg');
+      ALWAYS.forEach(function (f, i) { addPlate(f, 10 + i, false); });
+      STEPS.forEach(function (group, gi) {
+        group.forEach(function (f, i) { addPlate(f, 80 + gi * 10 + i, true); });
+      });
+      var mount = document.getElementById('svg-mount');
+      if (mount) mount.style.setProperty('display', 'none', 'important');
+      ['painted-house-img', 'painted-house-dark'].forEach(function (id) {
+        var n = document.getElementById(id);
+        if (n) n.style.display = 'none';
+      });
+      layerBuilt = true;
+      pinPaintedOverlays();
+    };
+    probe.src = BASE + '00_bg.png?v=layers1';
+  }
+
+  function setLit(on) {
+    clearTimeout(revealTimer);
+    var plates = document.querySelectorAll('#layer-stack img[data-lit="1"]');
+    if (!on) {
+      plates.forEach(function (img) { img.style.opacity = '0'; });
+      return;
+    }
+    STEPS.forEach(function (group, gi) {
+      revealTimer = setTimeout(function () {
+        group.forEach(function (f) {
+          var img = document.getElementById('pl-' + f.replace(/\W/g, '-'));
+          if (img) img.style.opacity = '1';
+        });
+      }, gi * 700);
+    });
   }
 
   function pinPaintedOverlays() {
@@ -60,11 +120,11 @@
     var hero = document.querySelector('.scorecard-hero');
     if (hero) { hero.style.top = '0.4%'; hero.style.width = '70%'; }
     var wrap = document.getElementById('overlay-wrap');
-    if (wrap) wrap.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;z-index:8;pointer-events:none;';
+    if (wrap) wrap.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;z-index:20;pointer-events:none;';
     var rose = document.getElementById('rose-words-wrap');
-    if (rose) rose.style.cssText = 'position:absolute;left:50%;top:32%;transform:translate(-50%,-50%);width:14%;text-align:center;z-index:9;';
+    if (rose) rose.style.cssText = 'position:absolute;left:50%;top:32%;transform:translate(-50%,-50%);width:14%;text-align:center;z-index:21;';
     var door = document.getElementById('door-result');
-    if (door) door.style.cssText = 'position:absolute;left:50%;top:64%;transform:translate(-50%,-50%);z-index:9;text-align:center;color:#fff;font-weight:800;font-size:28px;text-shadow:0 2px 8px #000;';
+    if (door) door.style.cssText = 'position:absolute;left:50%;top:64%;transform:translate(-50%,-50%);z-index:21;text-align:center;color:#fff;font-weight:800;font-size:28px;text-shadow:0 2px 8px #000;';
     var xs = [29.2, 36.4, 61.0, 67.2, 73.4];
     document.querySelectorAll('.grid-col-label').forEach(function (el, i) {
       if (xs[i] == null) return;
@@ -73,19 +133,6 @@
       el.style.setProperty('transform', 'translate(-50%,-100%)', 'important');
       el.style.setProperty('width', '70px', 'important');
     });
-  }
-
-  function setLit(on) {
-    var bright = document.getElementById('painted-house-img');
-    if (bright) bright.style.opacity = on ? '1' : '0';
-  }
-
-  function enablePaintedIfPresent() {
-    if (/[?&]painted=0\b/.test(location.search)) return;
-    var abs = new URL('assets/painted-house.png', location.href).href;
-    var img = new Image();
-    img.onload = function () { applyPainted(abs); };
-    img.src = abs + '?v=paint22';
   }
 
   function fillStage() {
@@ -114,7 +161,7 @@
   function pinChrome() {
     fillStage();
     pinLabels();
-    enablePaintedIfPresent();
+    buildLayers();
   }
 
   function bindRevealChrome() {
@@ -133,7 +180,10 @@
       replay.addEventListener('click', function () {
         stage.classList.remove('revealing');
         setLit(false);
-        setTimeout(function () { stage.classList.add('revealing'); setLit(true); }, 200);
+        setTimeout(function () {
+          stage.classList.add('revealing');
+          setLit(true);
+        }, 400);
       });
       replay._taylerBound = true;
     }
