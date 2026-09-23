@@ -336,6 +336,8 @@
       ? window.DataProcessing.fromAggregated(sourceInfo.aggregated, config)
       : window.DataProcessing.process(sourceInfo.rows, config);
     setDataSourceStatus(sourceInfo, processed);
+    window.__TEAM_PULSE_PROCESSED__ = processed;
+    window.dispatchEvent(new CustomEvent('team-pulse:data', { detail: processed }));
 
     // Keep the presentation synchronized with new Form submissions while it
     // remains open between class responses. RevealAnimation keeps a reference
@@ -350,6 +352,8 @@
         Object.keys(processed).forEach(function (k) { delete processed[k]; });
         Object.keys(fresh).forEach(function (k) { processed[k] = fresh[k]; });
         setDataSourceStatus(freshInfo, processed);
+        window.__TEAM_PULSE_PROCESSED__ = processed;
+        window.dispatchEvent(new CustomEvent('team-pulse:data', { detail: processed }));
         console.info('[main] Live survey data refreshed at', new Date().toISOString());
         return processed;
       }).catch(function (err) {
