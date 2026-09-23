@@ -5,10 +5,8 @@
  * below were measured from Timir's separated 1726x911 PSD so live survey
  * colors land precisely on the five lower stained-glass windows.
  *
- * Each of the 35 score panes is a translucent, multi-facet color layer using
- * CSS `mix-blend-mode: color`. That replaces hue/saturation while preserving
- * the painted PNG's luminance, bevels, highlights, lead lines and texture —
- * so an orange score still has several orange shades instead of a flat fill.
+ * Each score colors one group of the painted window's existing facets. The
+ * transparent tint changes hue while the painting supplies all shade and detail.
  */
 (function () {
   'use strict';
@@ -18,11 +16,24 @@
 
   // Main lower-glass interiors measured from the PSD, left -> right.
   var WINDOW_BOXES = [
-    { teamId: 'team1', x: 417,  y: 478, w: 113, h: 203 }, // Sales & Marketing
-    { teamId: 'team2', x: 561,  y: 477, w: 113, h: 203 }, // Operations
-    { teamId: 'team3', x: 1059, y: 477, w: 97,  h: 203 }, // Field Services
-    { teamId: 'team4', x: 1151, y: 477, w: 92,  h: 203 }, // Leadership
-    { teamId: 'team5', x: 1242, y: 477, w: 90,  h: 203 }  // Customer Service & HR
+    { teamId: 'team1', x: 434,  y: 493, w: 96, h: 179 }, // Sales & Marketing
+    { teamId: 'team2', x: 573,  y: 493, w: 93, h: 179 }, // Operations
+    { teamId: 'team3', x: 1073, y: 493, w: 72, h: 179 }, // Field Services
+    { teamId: 'team4', x: 1160, y: 493, w: 74, h: 179 }, // Leadership
+    { teamId: 'team5', x: 1248, y: 493, w: 74, h: 179 }  // Customer Service & HR
+  ];
+
+  // Coordinates are fractions of the glass interior. Edges follow the painted
+  // pointed arch, central diamonds and lower diagonal lead seams. Each path is
+  // inset from the frame; no tint rectangle crosses a lead line.
+  var FACETS = [
+    'M .50 .015 Q .25 .075 .025 .18 L .025 .35 L .26 .28 L .50 .15 Z',
+    'M .50 .015 Q .75 .075 .975 .18 L .975 .35 L .74 .28 L .50 .15 Z',
+    'M .025 .36 L .26 .29 L .49 .44 L .25 .57 L .025 .48 Z',
+    'M .50 .16 L .73 .29 L .76 .49 L .50 .66 L .24 .49 L .27 .29 Z',
+    'M .975 .36 L .74 .29 L .51 .44 L .75 .57 L .975 .48 Z',
+    'M .025 .49 L .25 .58 L .49 .67 L .49 .985 L .025 .985 Z',
+    'M .975 .49 L .75 .58 L .51 .67 L .51 .985 L .975 .985 Z'
   ];
 
   var processed = null;
@@ -39,79 +50,20 @@
       ['q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q9'];
   }
 
-  function addDefs(svg) {
-    var defs = ns('defs');
-    var filter = ns('filter');
-    filter.setAttribute('id', 'paintedPaneGlow');
-    filter.setAttribute('x', '-25%');
-    filter.setAttribute('y', '-30%');
-    filter.setAttribute('width', '150%');
-    filter.setAttribute('height', '160%');
-
-    var blur = ns('feGaussianBlur');
-    blur.setAttribute('stdDeviation', '1.7');
-    blur.setAttribute('result', 'b');
-    filter.appendChild(blur);
-
-    var merge = ns('feMerge');
-    var n1 = ns('feMergeNode');
-    n1.setAttribute('in', 'b');
-    var n2 = ns('feMergeNode');
-    n2.setAttribute('in', 'SourceGraphic');
-    merge.appendChild(n1);
-    merge.appendChild(n2);
-    filter.appendChild(merge);
-    defs.appendChild(filter);
-    svg.appendChild(defs);
-  }
-
-  function makePane(box, qKey, rowIndex, y, h) {
+  function makePane(box, qKey, facetIndex) {
     var g = ns('g');
     g.setAttribute('class', 'painted-data-pane');
     g.setAttribute('data-team', box.teamId);
     g.setAttribute('data-question', qKey);
     g.style.opacity = '0';
 
-    var base = ns('rect');
-    base.setAttribute('x', box.x);
-    base.setAttribute('y', y);
-    base.setAttribute('width', box.w);
-    base.setAttribute('height', h + 0.8);
-    base.setAttribute('rx', '1.5');
-    base.setAttribute('class', 'painted-pane-base');
-    g.appendChild(base);
+    var path = ns('path');
+    path.setAttribute('d', FACETS[facetIndex]);
+    path.setAttribute('transform', 'translate(' + box.x + ' ' + box.y + ') scale(' + box.w + ' ' + box.h + ')');
+    path.setAttribute('class', 'painted-pane-facet');
+    g.appendChild(path);
 
-    // Dark diagonal facet.
-    var dark = ns('polygon');
-    dark.setAttribute('points', [
-      box.x + ',' + y,
-      (box.x + box.w * .53) + ',' + y,
-      (box.x + box.w * .34) + ',' + (y + h),
-      box.x + ',' + (y + h)
-    ].join(' '));
-    dark.setAttribute('class', 'painted-pane-facet painted-pane-dark');
-    g.appendChild(dark);
-
-    // Light diagonal facet on the opposite side.
-    var light = ns('polygon');
-    light.setAttribute('points', [
-      (box.x + box.w * .62) + ',' + y,
-      (box.x + box.w) + ',' + y,
-      (box.x + box.w) + ',' + (y + h),
-      (box.x + box.w * .46) + ',' + (y + h)
-    ].join(' '));
-    light.setAttribute('class', 'painted-pane-facet painted-pane-light');
-    g.appendChild(light);
-
-    // Small alternating specular stroke; enough to read as glass without
-    // softening the artwork's black/gold lead lines.
-    var hi = ns('path');
-    var hy = y + h * (rowIndex % 2 ? .30 : .70);
-    hi.setAttribute('d', 'M ' + (box.x + 5) + ' ' + hy + ' L ' + (box.x + box.w - 5) + ' ' + (hy - 1.5));
-    hi.setAttribute('class', 'painted-pane-highlight');
-    g.appendChild(hi);
-
-    paneRefs[box.teamId + ':' + qKey] = { group: g, base: base, dark: dark, light: light };
+    paneRefs[box.teamId + ':' + qKey] = { group: g, path: path };
     return g;
   }
 
@@ -130,29 +82,20 @@
     // Matches ui-ref.js's painted image: object-fit:cover; object-position:center top.
     overlaySvg.setAttribute('preserveAspectRatio', 'xMidYMin slice');
     overlaySvg.setAttribute('aria-hidden', 'true');
-    addDefs(overlaySvg);
 
     var order = questionOrder();
     WINDOW_BOXES.forEach(function (box) {
       var teamGroup = ns('g');
       teamGroup.setAttribute('class', 'painted-team-overlay');
       teamGroup.setAttribute('data-team', box.teamId);
-      var rowH = box.h / order.length;
       order.forEach(function (qKey, i) {
-        teamGroup.appendChild(makePane(box, qKey, i, box.y + i * rowH, rowH));
+        teamGroup.appendChild(makePane(box, qKey, i));
       });
       overlaySvg.appendChild(teamGroup);
     });
 
     // Put score tint above the bright painting (z=1) but below all HTML UI (z=8).
     stage.insertBefore(overlaySvg, document.getElementById('vignette'));
-  }
-
-  function shadesFor(base) {
-    if (window.ColorUtils && typeof window.ColorUtils.shadeVariants === 'function') {
-      return window.ColorUtils.shadeVariants(base);
-    }
-    return { dark: base, medium: base, light: base };
   }
 
   function colorFor(teamId, qKey) {
@@ -170,10 +113,7 @@
     var ref = paneRefs[teamId + ':' + qKey];
     if (!ref) return;
     var base = colorFor(teamId, qKey);
-    var s = shadesFor(base);
-    ref.base.setAttribute('fill', s.medium || base);
-    ref.dark.setAttribute('fill', s.dark || base);
-    ref.light.setAttribute('fill', s.light || base);
+    ref.path.setAttribute('fill', base);
   }
 
   function paintAll() {
@@ -339,3 +279,4 @@
     pin: pinHtmlOverlays
   };
 })();
+
