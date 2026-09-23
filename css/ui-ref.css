@@ -48,3 +48,92 @@ body.painted-bg #vignette { display: none !important; }
 .stage.revealing .qr-stand,
 .stage.revealing #score-color-guide { opacity: 0 !important; pointer-events: none !important; }
 @media (max-width: 980px) { .focus-panel { display: none; } }
+
+
+/* PSD-aligned live stained glass ----------------------------------------- */
+body.painted-live-glass #painted-data-overlay {
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:2;
+  pointer-events:none;
+  overflow:visible;
+  isolation:isolate;
+}
+
+body.painted-live-glass .painted-data-pane {
+  opacity:0;
+  transition:opacity .62s ease;
+  filter:url(#paintedPaneGlow);
+}
+
+body.painted-live-glass .painted-pane-base,
+body.painted-live-glass .painted-pane-facet {
+  mix-blend-mode:color;
+}
+
+body.painted-live-glass .painted-pane-base { opacity:.86; }
+body.painted-live-glass .painted-pane-dark { opacity:.58; }
+body.painted-live-glass .painted-pane-light { opacity:.48; }
+
+body.painted-live-glass .painted-pane-highlight {
+  fill:none;
+  stroke:rgba(255,244,210,.46);
+  stroke-width:.75;
+  stroke-linecap:round;
+  opacity:.45;
+  mix-blend-mode:screen;
+}
+
+body.painted-live-glass .painted-data-pane.is-lit {
+  animation:paintedGlassIn .78s cubic-bezier(.18,.72,.18,1) both;
+}
+
+@keyframes paintedGlassIn {
+  0% { opacity:0; }
+  55% { opacity:1; }
+  100% { opacity:.90; }
+}
+
+/* Warm build on top of the exact approved painting. */
+body.painted-live-glass .stage::after {
+  content:'';
+  position:absolute;
+  inset:0;
+  z-index:7;
+  pointer-events:none;
+  opacity:0;
+  background:
+    radial-gradient(ellipse at 50% 58%, rgba(255,190,72,.20) 0%, rgba(255,170,45,.08) 24%, transparent 49%),
+    radial-gradient(circle at 50% 32%, rgba(255,224,150,.13), transparent 23%);
+  mix-blend-mode:screen;
+  transition:opacity 1.8s ease;
+}
+
+body.painted-live-glass .stage.painted-glass-nearly::after { opacity:.48; }
+body.painted-live-glass .stage.painted-glass-final::after { opacity:.76; }
+
+body.painted-live-glass .stage.painted-glass-nearly #painted-house-img {
+  filter:brightness(1.04) saturate(1.03) contrast(1.02) drop-shadow(0 0 10px rgba(255,194,94,.26));
+}
+body.painted-live-glass .stage.painted-glass-final #painted-house-img {
+  filter:brightness(1.09) saturate(1.06) contrast(1.03) drop-shadow(0 0 16px rgba(255,195,88,.38));
+}
+
+/* Keep the live word/door number tied to the PSD artwork. JS pins exact
+   screen positions after object-fit:cover cropping. */
+body.painted-live-glass #rose-words-wrap,
+body.painted-live-glass #door-result { z-index:9 !important; }
+body.painted-live-glass .rose-word {
+  color:#24170b !important;
+  text-shadow:0 1px 0 rgba(255,242,198,.5), 0 0 8px rgba(255,220,140,.26) !important;
+}
+
+/* Pre-session chrome disappears for the actual reveal. */
+body.painted-live-glass .stage.revealing .focus-panel,
+body.painted-live-glass .stage.revealing .qr-stand,
+body.painted-live-glass .stage.revealing #score-color-guide {
+  opacity:0 !important;
+  pointer-events:none !important;
+}
