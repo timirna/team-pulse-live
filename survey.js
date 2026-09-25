@@ -3,7 +3,7 @@
  const cfg=window.APP_CONFIG,$=id=>document.getElementById(id);
  let imported=false,sourceVersion=0;try{const saved=JSON.parse(localStorage.getItem('chapel-event')||'null');if(saved){cfg.dataSource.liveDataUrl=saved.source;cfg.qrCode.url=saved.form}}catch(e){console.warn('Event settings unavailable',e)}
  const parts=['house','window_left_1','window_left_2','window_right_3','window_right_2','window_right_1','roof_left_large','roof_left_small','roof_right_large','roof_right_small','rose','door','porch_left','porch_right','path_far_left','path_far_right','path_inner_left','path_inner_right','ivy'];
- let data=null,loading=false,frame=0,run=0,ready=true,reduced=new URLSearchParams(location.search).get('motion')==='reduced';
+ let data=null,loading=false,frame=0,run=0,reduced=new URLSearchParams(location.search).get('motion')==='reduced';
  const setStatus=text=>$('status').textContent=text;
  function controls(busy){$('play').disabled=!!busy;$('replay').disabled=!!busy}
 
@@ -15,26 +15,32 @@
  function sceneAt(seconds){for(const name of parts){const [start,length]=cues[name],p=Math.max(0,Math.min(1,(seconds-start)/length)),rise=ease(p),pulse=Math.sin(Math.PI*p);light(name,.18+.82*rise+.15*pulse,pulse)}$('door').style.opacity=String(ease((seconds-8)/1.1));$('rose').style.opacity=String(ease((seconds-9)/1))}
 
  const scene=document.querySelector('.scene');
- const sparks=document.createElement('div');sparks.id='sparks';if(scene)scene.append(sparks);
+ const sparks=document.createElement('div');sparks.id='sparks';
+ const canvas=document.createElement('canvas');sparks.append(canvas);if(scene)scene.append(sparks);
+ const ctx=canvas.getContext('2d');
+ let bits=[];
+ function sizeCanvas(){const r=scene.getBoundingClientRect(),d=Math.min(2,window.devicePixelRatio||1);canvas.width=Math.max(2,Math.floor(r.width*d));canvas.height=Math.max(2,Math.floor(r.height*d))}
  function burst(xPct,yPct,count){
-  if(reduced)return;
-  const flash=document.createElement('span');
-  flash.className='spark flash';
-  flash.style.left=xPct+'%';flash.style.top=yPct+'%';
-  sparks.append(flash);
+  if(reduced)return;sizeCanvas();
+  const w=canvas.width,h=canvas.height,cx=w*xPct/100,cy=h*yPct/100;
   for(let i=0;i<count;i++){
-   const p=document.createElement('span');
-   p.className='spark';
-   const a=Math.random()*Math.PI*2,d=40+Math.random()*90;
-   p.style.left=xPct+'%';p.style.top=yPct+'%';
-   p.style.setProperty('--dx',(Math.cos(a)*d)+'px');
-   p.style.setProperty('--dy',(Math.sin(a)*d)+'px');
-   p.style.animationDelay=(Math.random()*80)+'ms';
-   sparks.append(p);
+   const a=Math.random()*Math.PI*2,spd=(0.012+Math.random()*0.028)*Math.min(w,h);
+   bits.push({x:cx,y:cy,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd-spd*0.15,life:1,decay:0.012+Math.random()*0.01,r:2+Math.random()*5,gold:Math.random()});
   }
-  setTimeout(()=>{sparks.replaceChildren()},1400);
  }
- function clearSparks(){sparks.replaceChildren()}
+ function drawBits(){
+  if(!ctx)return;ctx.clearRect(0,0,canvas.width,canvas.height);
+  bits=bits.filter(p=>p.life>0);
+  bits.forEach(p=>{
+   p.x+=p.vx;p.y+=p.vy;p.vy+=0.04;p.vx*=0.99;p.life-=p.decay;
+   ctx.globalAlpha=Math.max(0,p.life);
+   const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*4);
+   g.addColorStop(0,'#fff8d2');g.addColorStop(0.35,p.gold>.4?'#ffd24a':'#ffe9a0');g.addColorStop(1,'rgba(255,160,40,0)');
+   ctx.fillStyle=g;ctx.beginPath();ctx.arc(p.x,p.y,p.r*4,0,Math.PI*2);ctx.fill();
+  });
+  ctx.globalAlpha=1;
+ }
+ function clearSparks(){bits=[];if(ctx)ctx.clearRect(0,0,canvas.width,canvas.height)}
 
  const vid=document.createElement('video');
  vid.id='reveal-video';
@@ -72,23 +78,31 @@
  function reveal(){
   if(window.AudioManager)AudioManager.startFromGesture();
   document.body.classList.add('presenting','animating');controls(true);setStatus('Revealing team confidence…');
-  brightness(.18);vid.style.opacity='0';$('art').style.opacity='1';$('door').style.opacity='0';$('rose').style.opacity='0';clearSparks();
+  brightness(.18);vid.style.opacity='0';$('art').style.opacity='1';$('door').style.opacity='0';$('rose').style.opacity='0';clearSparks();sizeCanvas();
   const token=++run,start=performance.now(),useVid=hasVideo||vid.readyState>=2;
-  if(useVid){
-   $('art').style.opacity='0';vid.style.opacity='1';vid.currentTime=0;vid.play().catch(()=>{});
-  }
+  if(useVid){$('art').style.opacity='0';vid.style.opacity='1';vid.currentTime=0;vid.play().catch(()=>{})}
   const duration=reduced?1000:(useVid?12000:13500);
-  let finaleSound=false,doorBurst=false,roseBurst=false;
+  const pops=[
+   {t:2500,x:67.2,y:58,n:28},
+   {t:3200,x:73.4,y:58,n:28},
+   {t:4000,x:29.2,y:58,n:28},
+   {t:4800,x:36.4,y:58,n:28},
+   {t:5500,x:61.0,y:58,n:22},
+   {t:8000,x:50,y:66.4,n:70},
+   {t:9000,x:50.35,y:36.77,n:90}
+  ];
+  const fired=pops.map(()=>false);
+  let finaleSound=false;
   function tick(now){if(token!==run)return;const elapsed=now-start;
    if(!finaleSound&&elapsed>duration-2600){finaleSound=true;if(window.AudioManager)AudioManager.playFinalReveal()}
-   if(!reduced&&!doorBurst&&elapsed>(useVid?8000:7500)){doorBurst=true;burst(50,66.4,34)}
-   if(!reduced&&!roseBurst&&elapsed>(useVid?9000:9500)){roseBurst=true;burst(50.35,36.77,42)}
+   if(!reduced)pops.forEach((p,i)=>{if(!fired[i]&&elapsed>=p.t){fired[i]=true;burst(p.x,p.y,p.n)}});
+   drawBits();
    const t=Math.min(1,elapsed/duration);
    if(reduced){brightness(.18+.82*ease(t));$('door').style.opacity=String(ease(t));$('rose').style.opacity=String(ease(t))}
    else if(!useVid)sceneAt(t*13.5);
    else{const sec=t*12;$('door').style.opacity=String(ease((sec-8)/1.1));$('rose').style.opacity=String(ease((sec-9)/1))}
    if(t<1)frame=requestAnimationFrame(tick);
-   else{if(useVid){try{vid.pause();vid.currentTime=vid.duration||12}catch(e){}}document.body.classList.remove('animating');document.body.classList.add('revealed');controls(false);setStatus('Live results · '+(data&&data.usedRows||0)+' responses')}}
+   else{drawBits();if(useVid){try{vid.pause();vid.currentTime=vid.duration||12}catch(e){}}document.body.classList.remove('animating');document.body.classList.add('revealed');controls(false);setStatus('Live results · '+(data&&data.usedRows||0)+' responses')}}
   frame=requestAnimationFrame(tick);
  }
  $('play').onclick=reveal;$('replay').onclick=reveal;$('reset').onclick=reset;$('refresh').onclick=refresh;
@@ -101,5 +115,5 @@
  $('save-settings').onclick=()=>{try{const source=new URL($('source-url').value),form=new URL($('form-url').value);if(source.protocol!=='https:'||form.protocol!=='https:')throw Error('Use HTTPS URLs.');localStorage.setItem('chapel-event',JSON.stringify({source:source.href,form:form.href}));sourceVersion++;cfg.dataSource.liveDataUrl=source.href;cfg.qrCode.url=form.href;imported=false;QrDisplay.render($('qr'),cfg);$('survey-link').href=form.href;$('setup-status').textContent='Connection saved for this browser.';refresh()}catch(e){$('setup-status').textContent=e.message}};
  $('default-settings').onclick=()=>{localStorage.removeItem('chapel-event');location.reload()};
  $('csv-file').onchange=async()=>{const file=$('csv-file').files[0];if(!file)return;try{const next=DataProcessing.process(DataSource.parseCsv(await file.text()),cfg);if(!next.usedRows||next.missingColumns.some(q=>cfg.scoredQuestionOrder.includes(q)||q==='q1_team'))throw Error('CSV headings or team names do not match this survey.');sourceVersion++;imported=true;render(next);controls(false);$('setup-status').textContent='Loaded '+next.usedRows+' responses. This file stays in this browser tab.';setStatus('Imported event · '+next.usedRows+' responses')}catch(e){$('setup-status').textContent=e.message}};
- refresh();const timer=setInterval(refresh,10000);window.addEventListener('beforeunload',()=>{clearInterval(timer);cancelAnimationFrame(frame)});
+ refresh();window.addEventListener('resize',sizeCanvas);const timer=setInterval(refresh,10000);window.addEventListener('beforeunload',()=>{clearInterval(timer);cancelAnimationFrame(frame)});
 })();
