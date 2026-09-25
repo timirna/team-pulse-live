@@ -5,3 +5,28 @@ footer{position:relative;bottom:auto;background:#061020;max-width:1726px;width:1
 .scene{width:min(100%,calc((100svh - 185px)*1.8946));margin-inline:auto}#reference{max-width:1400px;margin:auto}
 #sparks{position:absolute;inset:0;z-index:40;pointer-events:none;mix-blend-mode:screen}
 #sparks canvas{width:100%;height:100%;display:block}
+
+/* ---- colonial house scene (16:9, coordinates are % of the 1792x1008 artwork) ---- */
+main{max-width:1920px}
+.scene{aspect-ratio:16/9;container-type:inline-size;background:#040a18}
+.scene #poster,.scene #lit{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#lit{opacity:0;transition:opacity 1.6s ease}
+#reveal-video{object-fit:cover!important}
+#tints{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;transition:opacity .6s ease}
+#tints.on{opacity:1}
+.tint{position:absolute;mix-blend-mode:color}
+.tint.multiply{mix-blend-mode:multiply;opacity:.35}
+#labels{z-index:6;transition:opacity .5s ease}
+.qchip{position:absolute;transform:translateX(-50%);padding:.15cqw .55cqw;font:600 .66cqw/1.2 system-ui,sans-serif;letter-spacing:.02em;color:#fff5d8;background:#0a1220d9;border:1px solid #d9c07a66;border-radius:.3cqw;white-space:nowrap;text-shadow:0 1px 2px #000}
+.tlabel{position:absolute;right:calc(100% - 7.15%);width:6.7%;text-align:right;font:600 .58cqw/1.15 system-ui,sans-serif;color:#f4e5c7;text-shadow:0 1px 3px #000,0 0 6px #000;transform:translateY(-50%)}
+#legend{position:absolute;left:50%;bottom:1.6%;transform:translateX(-50%);display:flex;gap:.5cqw;align-items:stretch;padding:.5cqw .7cqw;background:#0a1220d9;border:1px solid #d9c07a55;border-radius:.5cqw}
+#legend div{display:flex;align-items:center;gap:.35cqw;font:600 .64cqw/1.15 system-ui,sans-serif;color:#f4e5c7;white-space:nowrap}
+#legend i{display:block;width:1.3cqw;height:1.3cqw;border-radius:.25cqw;border:1px solid #0006}
+.result{z-index:12}
+#rose{left:50%;top:33.3%;width:7%;background:none!important;border:0!important;text-shadow:0 1px 2px #fff8;color:#3b2a10;font:700 1.3cqw Georgia,serif;overflow-wrap:normal;padding:0}
+#door{left:50%;top:70%;width:6.4%;background:none!important;border:0!important;color:#2b1a06;text-shadow:0 1px 2px #ffe9b0aa;padding:0}
+#door strong{font:700 2.7cqw Georgia,serif!important}
+#door span{font:600 .6cqw system-ui!important;color:#2b1a06;text-shadow:0 1px 2px #ffe9b0aa}
+.revealed #labels{opacity:1}
+
+#tintcv{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}

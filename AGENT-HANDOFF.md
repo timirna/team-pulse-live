@@ -83,3 +83,10 @@ Painted overlay pins (tweak here if labels drift):
 ## How Timir works
 
 Mixed Bangla + English. Short practical steps. Visual first. One-shot instructions.
+
+## 2026-09-26 — colonial house version
+- Scene is now a 16:9 colonial brick house (assets/house-night.jpg, assets/house-lit.jpg, assets/chapel-reveal.mp4 = 12s reveal with sound; keep that filename).
+- Six tall windows + door transom = the 7 scored questions (Q2-Q7, Q9), left to right; each window has 5 team bands (top to bottom) recoloured per pixel from live scores in survey.js (paintTiles/drawTints). Timing per window is in LIGHT[] and must match the video.
+- Door % (Q8) fades in at 8s, rose word (Q10) at 9s, sparks at 10s. QR/sidebar hide during Play.
+- Labels (questions, teams, score legend) sit on the house; positions are px in the 1792x1008 artwork (WIN/GLASS/TRANSOM in survey.js).
+- Sound comes from the video; the site no longer plays its own audio (audio.js removed from index.html).
