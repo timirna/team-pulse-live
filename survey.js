@@ -14,12 +14,33 @@
  function brightness(value){for(const name of parts)light(name,value);$('art').style.filter='none'}
  function sceneAt(seconds){for(const name of parts){const [start,length]=cues[name],p=Math.max(0,Math.min(1,(seconds-start)/length)),rise=ease(p),pulse=Math.sin(Math.PI*p);light(name,.18+.82*rise+.15*pulse,pulse)}$('door').style.opacity=String(ease((seconds-8)/1.1));$('rose').style.opacity=String(ease((seconds-9)/1))}
 
+ const scene=document.querySelector('.scene');
+ const sparks=document.createElement('div');sparks.id='sparks';if(scene)scene.append(sparks);
+ function burst(xPct,yPct,count){
+  if(reduced)return;
+  const flash=document.createElement('span');
+  flash.className='spark flash';
+  flash.style.left=xPct+'%';flash.style.top=yPct+'%';
+  sparks.append(flash);
+  for(let i=0;i<count;i++){
+   const p=document.createElement('span');
+   p.className='spark';
+   const a=Math.random()*Math.PI*2,d=40+Math.random()*90;
+   p.style.left=xPct+'%';p.style.top=yPct+'%';
+   p.style.setProperty('--dx',(Math.cos(a)*d)+'px');
+   p.style.setProperty('--dy',(Math.sin(a)*d)+'px');
+   p.style.animationDelay=(Math.random()*80)+'ms';
+   sparks.append(p);
+  }
+  setTimeout(()=>{[...sparks.querySelectorAll('.spark')].forEach(n=>{if(!n.isConnected)return;n.remove()})},1400);
+ }
+ function clearSparks(){sparks.replaceChildren()}
+
  const vid=document.createElement('video');
  vid.id='reveal-video';
  vid.src='assets/chapel-reveal.mp4';
  vid.playsInline=true;vid.muted=true;vid.preload='auto';vid.setAttribute('playsinline','');
  vid.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:1;opacity:0;pointer-events:none;';
- const scene=document.querySelector('.scene');
  if(scene) scene.append(vid);
  let hasVideo=false;
  vid.addEventListener('loadeddata',()=>{hasVideo=true;});
@@ -46,7 +67,7 @@
   catch(error){console.error(error);setStatus(data?'Update unavailable. Showing the last confirmed results.':'Survey connection unavailable. Use Refresh results to retry.');}
   finally{loading=false;$('refresh').disabled=false;controls(document.body.classList.contains('animating'))}
  }
- function reset(){run++;cancelAnimationFrame(frame);brightness(.18);vid.pause();vid.currentTime=0;vid.style.opacity='0';$('art').style.opacity='1';$('door').style.opacity='0';$('rose').style.opacity='0';document.body.classList.remove('presenting','revealed','animating');controls(false);setStatus('Ready for the next reveal.');}
+ function reset(){run++;cancelAnimationFrame(frame);brightness(.18);vid.pause();vid.currentTime=0;vid.style.opacity='0';$('art').style.opacity='1';$('door').style.opacity='0';$('rose').style.opacity='0';clearSparks();document.body.classList.remove('presenting','revealed','animating');controls(false);setStatus('Ready for the next reveal.');}
  function reveal(){
   if(!data||!ready)return;reset();if(window.AudioManager)AudioManager.startFromGesture();document.body.classList.add('presenting','animating');controls(true);setStatus('Revealing team confidence…');
   const token=++run,start=performance.now(),useVid=hasVideo||vid.readyState>=2;
@@ -54,7 +75,18 @@
    $('art').style.opacity='0';vid.style.opacity='1';vid.currentTime=0;vid.play().catch(()=>{});
   }
   const duration=reduced?1000:(useVid?12000:13500);
-  let finaleSound=false;function tick(now){if(token!==run)return;if(!finaleSound&&now-start>duration-2600){finaleSound=true;if(window.AudioManager)AudioManager.playFinalReveal()}const t=Math.min(1,(now-start)/duration);if(reduced){brightness(.18+.82*ease(t));$('door').style.opacity=String(ease(t));$('rose').style.opacity=String(ease(t))}else if(!useVid)sceneAt(t*13.5);else{const sec=t*12;$('door').style.opacity=String(ease((sec-8)/1.1));$('rose').style.opacity=String(ease((sec-9)/1))}if(t<1)frame=requestAnimationFrame(tick);else{if(useVid){vid.pause();vid.currentTime=vid.duration||12}document.body.classList.remove('animating');document.body.classList.add('revealed');controls(false);setStatus('Live results · '+data.usedRows+' responses')}}frame=requestAnimationFrame(tick);
+  let finaleSound=false,doorBurst=false,roseBurst=false;
+  function tick(now){if(token!==run)return;const elapsed=now-start;
+   if(!finaleSound&&elapsed>duration-2600){finaleSound=true;if(window.AudioManager)AudioManager.playFinalReveal()}
+   if(!reduced&&!doorBurst&&elapsed>(useVid?8000:7500)){doorBurst=true;burst(50,66.4,34)}
+   if(!reduced&&!roseBurst&&elapsed>(useVid?9000:9500)){roseBurst=true;burst(50.35,36.77,42)}
+   const t=Math.min(1,elapsed/duration);
+   if(reduced){brightness(.18+.82*ease(t));$('door').style.opacity=String(ease(t));$('rose').style.opacity=String(ease(t))}
+   else if(!useVid)sceneAt(t*13.5);
+   else{const sec=t*12;$('door').style.opacity=String(ease((sec-8)/1.1));$('rose').style.opacity=String(ease((sec-9)/1))}
+   if(t<1)frame=requestAnimationFrame(tick);
+   else{if(useVid){vid.pause();vid.currentTime=vid.duration||12}document.body.classList.remove('animating');document.body.classList.add('revealed');controls(false);setStatus('Live results · '+data.usedRows+' responses')}}
+  frame=requestAnimationFrame(tick);
  }
  $('play').onclick=reveal;$('replay').onclick=reveal;$('reset').onclick=reset;$('refresh').onclick=refresh;
  function motionLabel(){$('access').setAttribute('aria-pressed',String(reduced));$('access').textContent=reduced?'Reduced motion on':'Reduce motion'}motionLabel();$('access').onclick=()=>{reduced=!reduced;motionLabel()};
