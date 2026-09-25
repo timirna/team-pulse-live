@@ -44,7 +44,7 @@
 
  const vid=document.createElement('video');
  vid.id='reveal-video';
- vid.src='assets/chapel-reveal.mp4';
+ vid.src='assets/chapel-reveal.mp4?v=new26';
  vid.playsInline=true;vid.muted=true;vid.preload='auto';vid.setAttribute('playsinline','');
  vid.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:1;opacity:0;pointer-events:none;';
  if(scene) scene.append(vid);
@@ -82,19 +82,11 @@
   const token=++run,start=performance.now(),useVid=hasVideo||vid.readyState>=2;
   if(useVid){$('art').style.opacity='0';vid.style.opacity='1';vid.currentTime=0;vid.play().catch(()=>{})}
   const duration=reduced?1000:(useVid?12000:13500);
-  const pops=[
-   {t:2500,x:67.2,y:58,n:28},
-   {t:3200,x:73.4,y:58,n:28},
-   {t:4000,x:29.2,y:58,n:28},
-   {t:4800,x:36.4,y:58,n:28},
-   {t:5500,x:61.0,y:58,n:22},
-   {t:8000,x:50,y:66.4,n:70},
-   {t:9000,x:50.35,y:36.77,n:90}
-  ];
+  const pops=[{t:10000,x:50.3,y:36.8,n:24},{t:10000,x:50,y:66.4,n:28}];
   const fired=pops.map(()=>false);
   let finaleSound=false;
   function tick(now){if(token!==run)return;const elapsed=now-start;
-   if(!finaleSound&&elapsed>duration-2600){finaleSound=true;if(window.AudioManager)AudioManager.playFinalReveal()}
+   if(!finaleSound&&elapsed>10000){finaleSound=true;if(window.AudioManager)AudioManager.playFinalReveal()}
    if(!reduced)pops.forEach((p,i)=>{if(!fired[i]&&elapsed>=p.t){fired[i]=true;burst(p.x,p.y,p.n)}});
    drawBits();
    const t=Math.min(1,elapsed/duration);
