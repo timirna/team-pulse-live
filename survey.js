@@ -34,13 +34,14 @@
 
  // ---- reveal video (carries the lighting, the rays and the sound) ----
  const vid=document.createElement('video');
- vid.id='reveal-video';vid.src='assets/chapel-reveal.mp4?v=house3';
+ vid.id='reveal-video';vid.src='assets/chapel-reveal.mp4?v=house5';
  vid.playsInline=true;vid.muted=false;vid.preload='auto';vid.setAttribute('playsinline','');
  vid.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;opacity:0;pointer-events:none;';
  scene.append(vid);
  let hasVideo=false;
  vid.addEventListener('canplaythrough',()=>{hasVideo=true});vid.addEventListener('loadeddata',()=>{hasVideo=true});
- let soundOn=true;
+ let soundOn=true,pctTarget=null;
+ const countTo=p=>{if(pctTarget!=null)$('percentage').textContent=Math.round(pctTarget*ease(p))+'%'};
 
  // ---- labels on the house: question chips, team names, score legend ----
  function buildLabels(){
@@ -90,13 +91,13 @@
    c.drawImage(tile.t,X,Y,TW,TH);c.restore();
   });
  }
- function fitRose(){const r=$('rose'),len=Math.max(1,(r.textContent||'').length),w=scene.getBoundingClientRect().width;r.style.fontSize=Math.max(.8,Math.min(2.3,5.6/(.56*len)))+'cqw';r.style.width='7%'}
+ function fitRose(){const r=$('rose'),len=Math.max(1,(r.textContent||'').length),w=scene.getBoundingClientRect().width;r.style.fontSize=Math.max(.9,Math.min(2.6,6.0/(.56*len)))+'cqw';r.style.width='7.2%'}
 
  function render(next){
   data=next;window.__TEAM_PULSE_PROCESSED__=next;
   const words=(next.q10Ranked||[]).filter(x=>x&&typeof x.word==='string').slice().sort((a,b)=>b.count-a.count||a.word.localeCompare(b.word));
   $('rose').textContent=words.length?words[0].word:'';fitRose();
-  $('percentage').textContent=next.q8Total?next.q8Percentage+'%':'—';
+  pctTarget=next.q8Total?+next.q8Percentage:null;if(!document.body.classList.contains('animating'))$('percentage').textContent=pctTarget==null?'—':pctTarget+'%';
   $('door').lastElementChild.textContent=next.q8Total?'trust their team':'No responses yet';
   paintTiles(next);if(document.body.classList.contains('revealed'))drawTints(99);
   const table=$('scores');table.replaceChildren();const head=document.createElement('thead'),row=document.createElement('tr');
@@ -111,7 +112,7 @@
   catch(error){console.error(error);setStatus(data?'Update unavailable. Showing the last confirmed results.':'Survey connection unavailable. Use Refresh results to retry.');}
   finally{loading=false;$('refresh').disabled=false;if(!document.body.classList.contains('animating'))controls(false)}
  }
- function hideResults(){$('door').style.opacity='0';$('rose').style.opacity='0';drawTints(null)}
+ function hideResults(){if(pctTarget!=null)$('percentage').textContent='0%';$('door').style.opacity='0';$('rose').style.opacity='0';drawTints(null)}
  function reset(){run++;cancelAnimationFrame(frame);try{vid.pause();vid.currentTime=0}catch(e){}vid.style.opacity='0';$('lit').style.opacity='0';hideResults();clearSparks();document.body.classList.remove('presenting','revealed','animating');controls(false);setStatus('Ready for the next reveal.');}
  async function reveal(){
   if(!data){controls(true);setStatus('Loading live results…');const t0=Date.now();refresh();while(!data&&Date.now()-t0<30000)await new Promise(r=>setTimeout(r,250));controls(false)}
@@ -126,12 +127,12 @@
    const wall=now-start,vt=useVid&&vid.currentTime>0?vid.currentTime*1000:wall,elapsed=useVid?vt:wall;
    if(!reduced)pops.forEach((p,i)=>{if(!fired[i]&&elapsed>=p.t){fired[i]=true;burst(p.x,p.y,p.n)}});
    drawBits();drawTints(reduced||!useVid?99:elapsed/1000);
-   if(reduced){const t=Math.min(1,wall/duration);$('lit').style.opacity=String(t);$('door').style.opacity=String(ease(t));$('rose').style.opacity=String(ease(t))}
-   else if(!useVid){const s=elapsed/1000;$('lit').style.opacity=String(ease((s-1)/3));$('door').style.opacity=String(ease((s-3.6)/1.1));$('rose').style.opacity=String(ease((s-4.6)/1))}
-   else{const sec=elapsed/1000;$('door').style.opacity=String(ease((sec-8)/1.1));$('rose').style.opacity=String(ease((sec-9)/1))}
+   if(reduced){const t=Math.min(1,wall/duration);countTo(t);$('lit').style.opacity=String(t);$('door').style.opacity=String(ease(t));$('rose').style.opacity=String(ease(t))}
+   else if(!useVid){const s=elapsed/1000;countTo((s-3.6)/1.6);$('lit').style.opacity=String(ease((s-1)/3));$('door').style.opacity=String(ease((s-3.6)/1.1));$('rose').style.opacity=String(ease((s-4.6)/1))}
+   else{const sec=elapsed/1000;countTo((sec-8.1)/1.7);$('door').style.opacity=String(ease((sec-8)/1.1));$('rose').style.opacity=String(ease((sec-9)/1))}
    const done=useVid?(vid.ended||elapsed>=duration+400):wall>=duration;
    if(!done)frame=requestAnimationFrame(tick);
-   else{drawBits();if(useVid){try{vid.pause();vid.currentTime=Math.max(0,(vid.duration||12)-.05)}catch(e){}}$('door').style.opacity='1';$('rose').style.opacity='1';drawTints(99);document.body.classList.remove('animating');document.body.classList.add('revealed');controls(false);setStatus('Live results · '+(data&&data.usedRows||0)+' responses')}}
+   else{drawBits();if(useVid){try{vid.pause();vid.currentTime=Math.max(0,(vid.duration||12)-.05)}catch(e){}}$('door').style.opacity='1';$('rose').style.opacity='1';countTo(1);drawTints(99);document.body.classList.remove('animating');document.body.classList.add('revealed');controls(false);setStatus('Live results · '+(data&&data.usedRows||0)+' responses')}}
   frame=requestAnimationFrame(tick);
  }
  $('play').onclick=reveal;$('replay').onclick=reveal;$('reset').onclick=reset;$('refresh').onclick=refresh;

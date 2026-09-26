@@ -30,3 +30,15 @@ main{max-width:1920px}
 .revealed #labels{opacity:1}
 
 #tintcv{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
+
+/* larger on-house text (readable from the back of a room) */
+.qchip{font-size:1.05cqw;padding:.25cqw .8cqw;border-radius:.4cqw}
+.tlabel{font-size:.92cqw;width:7.2%;right:calc(100% - 7.4%);line-height:1.1}
+#legend{padding:.7cqw 1cqw;gap:.9cqw;bottom:1.2%}
+#legend div{font-size:1.05cqw;gap:.5cqw}
+#legend i{width:1.7cqw;height:1.7cqw}
+#door{width:7.4%;top:69%}
+#door strong{font-size:3.5cqw!important;line-height:1}
+#door span{font-size:.95cqw!important;display:block;line-height:1.1;font-weight:700}
+.tlabel{font-size:1.02cqw}
+#door span{font-size:1.15cqw!important}
