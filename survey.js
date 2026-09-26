@@ -34,7 +34,7 @@
 
  // ---- reveal video (carries the lighting, the rays and the sound) ----
  const vid=document.createElement('video');
- vid.id='reveal-video';vid.src='assets/chapel-reveal.mp4?v=house6';
+ vid.id='reveal-video';vid.src='assets/chapel-reveal.mp4?v=house7';
  vid.playsInline=true;vid.muted=false;vid.preload='auto';vid.setAttribute('playsinline','');
  vid.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;opacity:0;pointer-events:none;';
  scene.append(vid);
