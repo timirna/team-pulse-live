@@ -42,3 +42,7 @@ main{max-width:1920px}
 #door span{font-size:.95cqw!important;display:block;line-height:1.1;font-weight:700}
 .tlabel{font-size:1.02cqw}
 #door span{font-size:1.15cqw!important}
+/* final lit picture has a dark wooden door and a detailed rose centre */
+#door strong{color:#fff3cf!important;text-shadow:0 0 .6cqw #000,0 .1cqw .3cqw #000!important}
+#door span{color:#fff3cf!important;text-shadow:0 0 .5cqw #000,0 .1cqw .25cqw #000!important}
+#rose{background:radial-gradient(circle,#fff6d8f2 0,#fff6d8ee 58%,#fff6d800 74%)!important;padding:.6cqw 0!important}
