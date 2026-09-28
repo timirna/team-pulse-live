@@ -18,7 +18,6 @@ main{max-width:1920px}
 .tint.multiply{mix-blend-mode:multiply;opacity:.35}
 #labels{z-index:6;transition:opacity .5s ease}
 .qchip{position:absolute;transform:translateX(-50%);padding:.15cqw .55cqw;font:600 .66cqw/1.2 system-ui,sans-serif;letter-spacing:.02em;color:#fff5d8;background:#0a1220d9;border:1px solid #d9c07a66;border-radius:.3cqw;white-space:nowrap;text-shadow:0 1px 2px #000}
-.tlabel{position:absolute;right:calc(100% - 7.15%);width:6.7%;text-align:right;font:600 .58cqw/1.15 system-ui,sans-serif;color:#f4e5c7;text-shadow:0 1px 3px #000,0 0 6px #000;transform:translateY(-50%)}
 #legend{position:absolute;left:50%;bottom:1.6%;transform:translateX(-50%);display:flex;gap:.5cqw;align-items:stretch;padding:.5cqw .7cqw;background:#0a1220d9;border:1px solid #d9c07a55;border-radius:.5cqw}
 #legend div{display:flex;align-items:center;gap:.35cqw;font:600 .64cqw/1.15 system-ui,sans-serif;color:#f4e5c7;white-space:nowrap}
 #legend i{display:block;width:1.3cqw;height:1.3cqw;border-radius:.25cqw;border:1px solid #0006}
@@ -33,14 +32,12 @@ main{max-width:1920px}
 
 /* larger on-house text (readable from the back of a room) */
 .qchip{font-size:1.05cqw;padding:.25cqw .8cqw;border-radius:.4cqw}
-.tlabel{font-size:.92cqw;width:7.2%;right:calc(100% - 7.4%);line-height:1.1}
 #legend{padding:.7cqw 1cqw;gap:.9cqw;bottom:1.2%}
 #legend div{font-size:1.05cqw;gap:.5cqw}
 #legend i{width:1.7cqw;height:1.7cqw}
 #door{width:7.4%;top:69%}
 #door strong{font-size:3.5cqw!important;line-height:1}
 #door span{font-size:.95cqw!important;display:block;line-height:1.1;font-weight:700}
-.tlabel{font-size:1.02cqw}
 #door span{font-size:1.15cqw!important}
 /* final lit picture has a dark wooden door and a detailed rose centre */
 #door strong{color:#fff3cf!important;text-shadow:0 0 .6cqw #000,0 .1cqw .3cqw #000!important}
@@ -49,3 +46,12 @@ main{max-width:1920px}
 /* labels (questions, teams) stay on the house at all times; the score guide hides during the reveal like #reference */
 .presenting #labels,.animating #labels,.revealed #labels,#labels{opacity:1!important;visibility:visible!important}
 .presenting #legend{display:none}
+
+/* team chips on the brick, centred on each pane row (same look as .qchip, small gold arrow toward the window) */
+.tchip{position:absolute;transform:translateY(-50%);width:4.2%;box-sizing:border-box;padding:.1cqw .3cqw;font:600 .65cqw/.98 system-ui,sans-serif;letter-spacing:.01em;color:#fff5d8;background:#0a1220e0;border:1px solid #d9c07a77;border-radius:.4cqw;white-space:pre;text-shadow:0 1px 2px #000;box-shadow:0 .1cqw .4cqw #0008;display:flex;align-items:center;min-height:1.55cqw}
+.tchip-L{justify-content:flex-end;text-align:right}
+.tchip-R{justify-content:flex-start;text-align:left}
+.tchip::after{content:'';position:absolute;top:50%;width:0;height:0;border:.32cqw solid transparent;transform:translateY(-50%)}
+.tchip-L::after{left:100%;border-left-color:#d9c07acc;border-right:0}
+.tchip-R::after{right:100%;border-right-color:#d9c07acc;border-left:0}
+.tchip-3{font-size:.56cqw;line-height:.9}
