@@ -14,6 +14,8 @@
  const WIN=[{cx:258,q:0},{cx:419,q:1},{cx:582,q:2},{cx:896,q:3,transom:true},{cx:1214,q:4},{cx:1372,q:5},{cx:1529,q:6}];
  const GLASS={w:70,top:598,h:192},TRANSOM={w:100,top:592,h:40};
  const BAND_TOP=598,BAND_H=192/5;
+ // measured pane rows (glass top 601, bottom 790) and team chip anchors: right edge of the left column, left edge of the right column
+ const ROW_TOP=601,ROW_H=189/5,TEAM_CHIP_X=[208,1586];
 
  // ---- sparks ----
  const sparks=document.createElement('div');sparks.id='sparks';
@@ -47,13 +49,18 @@
  function buildLabels(){
   const L=$('labels');L.replaceChildren();
   WIN.forEach(w=>{const q=cfg.scoredQuestionOrder[w.q],chip=document.createElement('span');chip.className='qchip';chip.style.left=pct(w.cx,AW);chip.style.top=pct(w.transom?566:566,AH);chip.textContent=cfg.columns[q].shortLabel||q;L.append(chip)});
-  cfg.teams.forEach((team,i)=>{const t=document.createElement('span');t.className='tlabel';t.style.top=pct(BAND_TOP+(i+.5)*BAND_H,AH);t.textContent=team.shortName||team.name;L.append(t)});
+  // team chips on the brick: one column left of the first window, a mirrored column right of the last, centred on each pane row
+  const BR={'Sales & Marketing':'Sales &\nMarketing','Field Services':'Field\nServices','Customer Service & HR':'Customer\nService\n& HR'};
+  cfg.teams.forEach((team,i)=>{const nm=team.shortName||team.name;
+   [['L',TEAM_CHIP_X[0]],['R',TEAM_CHIP_X[1]]].forEach(([side,x])=>{const t=document.createElement('span');t.className='tchip tchip-'+side;t.style.top=pct(ROW_TOP+(i+.5)*ROW_H,AH);
+    if(side==='L')t.style.right=pct(AW-x,AW);else{t.style.left=pct(x,AW);t.setAttribute('aria-hidden','true')}
+    t.textContent=BR[nm]||nm;if(t.textContent.split('\n').length>2)t.classList.add('tchip-3');L.append(t)})});
   const lg=document.createElement('div');lg.id='legend';
   const names={1:'Low confidence',2:'',3:'',4:'',5:'High confidence'};
   for(let s=1;s<=5;s++){const d=document.createElement('div'),i=document.createElement('i');i.style.background=ColorUtils.scoreToColor(s,cfg);d.append(i,document.createTextNode(s+(names[s]?' – '+names[s]:'')));lg.append(d)}
   L.append(lg);
  }
- // ---- score colours: painted facets kept, hue from live scores, 5 team bands blended top to bottom ----
+ // ---- score colours: one stained-glass row per team in every window (door transom: one fan segment per team) ----
  const tcv=document.createElement('canvas');tcv.id='tintcv';tcv.setAttribute('aria-hidden','true');scene.append(tcv);
  // seconds in chapel-reveal.mp4 when each window lights: [start,duration] (window order = WIN order)
  const LIGHT=[[3.95,.9],[4.30,.9],[2.55,.9],[7.10,.8],[3.20,.8],[2.10,.9],[3.05,.8]];
@@ -65,7 +72,20 @@
   else if(frac>1-soft&&i<4){const t=(frac-(1-soft))/(soft*2);c=cols[i].map((v,k)=>v+(cols[i+1][k]-v)*t)}
   return c;
  }
+ // team panes (js/team-panes.js): 5 stained-glass team rows per window, painted once per colour change
+ let paneKey='',paneJob=0,pendingPaint=null;
  function paintTiles(next){
+  if(!litReady||!next)return;
+  if(!window.TeamPanes)return paintBands(next);
+  const hexes=WIN.map(w=>{const q=cfg.scoredQuestionOrder[w.q];return cfg.teams.map(t=>{const v=next.teamAverages[t.id]&&next.teamAverages[t.id][q];return v==null?'#8d929a':ColorUtils.scoreToColor(v,cfg)})});
+  const key=JSON.stringify(hexes);if(key===paneKey)return;
+  // new colours arriving mid-reveal are applied when the reveal finishes (keeps the animation smooth)
+  if(tiles.length&&document.body.classList.contains('animating')){pendingPaint=next;return}
+  paneKey=key;const job=++paneJob;
+  TeamPanes.paint($('lit'),hexes).then(t=>{if(job!==paneJob)return;tiles=t;if(document.body.classList.contains('revealed'))drawTints(99)})
+   .catch(e=>{console.warn('Team panes unavailable, using colour bands',e);if(job===paneJob){paneKey='';paintBands(next);if(document.body.classList.contains('revealed'))drawTints(99)}});
+ }
+ function paintBands(next){
   if(!litReady||!next)return;const lit=$('lit'),src=document.createElement('canvas');src.width=AW;src.height=AH;const sx=src.getContext('2d',{willReadFrequently:true});sx.drawImage(lit,0,0,AW,AH);
   tiles=WIN.map(w=>{
    const g=w.transom?TRANSOM:GLASS,x0=Math.round(w.cx-g.w/2),y0=g.top,tw=g.w,th=g.h,img=sx.getImageData(x0,y0,tw,th),d=img.data;
@@ -87,8 +107,8 @@
   tiles.forEach((tile,i)=>{
    const a=sec>=99?1:ease((sec-LIGHT[i][0])/LIGHT[i][1]);if(a<=0)return;
    c.save();c.globalAlpha=a;const X=tile.x/AW*W,Y=tile.y/AH*H,TW=tile.w/AW*W,TH=tile.h/AH*H;
-   if(tile.transom){c.beginPath();c.ellipse(X+TW/2,Y+TH,TW/2,TH,0,Math.PI,2*Math.PI);c.clip()}
-   c.drawImage(tile.t,X,Y,TW,TH);c.restore();
+   if(tile.transom&&!tile.alpha){c.beginPath();c.ellipse(X+TW/2,Y+TH,TW/2,TH,0,Math.PI,2*Math.PI);c.clip()}
+   c.imageSmoothingQuality='high';c.drawImage(tile.t,X,Y,TW,TH);c.restore();
   });
  }
  function fitRose(){const r=$('rose'),len=Math.max(1,(r.textContent||'').length),w=scene.getBoundingClientRect().width;r.style.fontSize=Math.max(.9,Math.min(2.6,6.0/(.56*len)))+'cqw';r.style.width='7.2%'}
@@ -113,7 +133,7 @@
   finally{loading=false;$('refresh').disabled=false;if(!document.body.classList.contains('animating'))controls(false)}
  }
  function hideResults(){if(pctTarget!=null)$('percentage').textContent='0%';$('door').style.opacity='0';$('rose').style.opacity='0';drawTints(null)}
- function reset(){run++;cancelAnimationFrame(frame);try{vid.pause();vid.currentTime=0}catch(e){}vid.style.opacity='0';$('lit').style.opacity='0';hideResults();clearSparks();document.body.classList.remove('presenting','revealed','animating');controls(false);setStatus('Ready for the next reveal.');}
+ function reset(){run++;if(pendingPaint){const p=pendingPaint;pendingPaint=null;setTimeout(()=>paintTiles(p))}cancelAnimationFrame(frame);try{vid.pause();vid.currentTime=0}catch(e){}vid.style.opacity='0';$('lit').style.opacity='0';hideResults();clearSparks();document.body.classList.remove('presenting','revealed','animating');controls(false);setStatus('Ready for the next reveal.');}
  async function reveal(){
   if(!data){controls(true);setStatus('Loading live results…');const t0=Date.now();refresh();while(!data&&Date.now()-t0<30000)await new Promise(r=>setTimeout(r,250));controls(false)}
   document.body.classList.add('presenting','animating');controls(true);setStatus('Revealing team confidence…');
@@ -132,7 +152,7 @@
    else{const sec=elapsed/1000;countTo((sec-8.1)/1.7);$('door').style.opacity=String(ease((sec-8)/1.1));$('rose').style.opacity=String(ease((sec-9)/1))}
    const done=useVid?(vid.ended||elapsed>=duration+400):wall>=duration;
    if(!done)frame=requestAnimationFrame(tick);
-   else{drawBits();if(useVid){try{vid.pause();vid.currentTime=Math.max(0,(vid.duration||12)-.05)}catch(e){}}$('door').style.opacity='1';$('rose').style.opacity='1';countTo(1);drawTints(99);document.body.classList.remove('animating');document.body.classList.add('revealed');controls(false);setStatus('Live results · '+(data&&data.usedRows||0)+' responses')}}
+   else{drawBits();if(useVid){try{vid.pause();vid.currentTime=Math.max(0,(vid.duration||12)-.05)}catch(e){}}$('door').style.opacity='1';$('rose').style.opacity='1';countTo(1);drawTints(99);document.body.classList.remove('animating');document.body.classList.add('revealed');if(pendingPaint){const p=pendingPaint;pendingPaint=null;paintTiles(p)}controls(false);setStatus('Live results · '+(data&&data.usedRows||0)+' responses')}}
   frame=requestAnimationFrame(tick);
  }
  $('play').onclick=reveal;$('replay').onclick=reveal;$('reset').onclick=reset;$('refresh').onclick=refresh;
@@ -143,7 +163,8 @@
  $('save-settings').onclick=()=>{try{const source=new URL($('source-url').value),form=new URL($('form-url').value);if(source.protocol!=='https:'||form.protocol!=='https:')throw Error('Use HTTPS URLs.');localStorage.setItem('chapel-event',JSON.stringify({source:source.href,form:form.href}));sourceVersion++;cfg.dataSource.liveDataUrl=source.href;cfg.qrCode.url=form.href;imported=false;QrDisplay.render($('qr'),cfg);$('survey-link').href=form.href;$('setup-status').textContent='Connection saved for this browser.';refresh()}catch(e){$('setup-status').textContent=e.message}};
  $('default-settings').onclick=()=>{localStorage.removeItem('chapel-event');location.reload()};
  $('csv-file').onchange=async()=>{const file=$('csv-file').files[0];if(!file)return;try{const next=DataProcessing.process(DataSource.parseCsv(await file.text()),cfg);if(!next.usedRows||next.missingColumns.some(q=>cfg.scoredQuestionOrder.includes(q)||q==='q1_team'))throw Error('CSV headings or team names do not match this survey.');sourceVersion++;imported=true;render(next);controls(false);$('setup-status').textContent='Loaded '+next.usedRows+' responses. This file stays in this browser tab.';setStatus('Imported event · '+next.usedRows+' responses')}catch(e){$('setup-status').textContent=e.message}};
- buildLabels();$('lit').complete&&$('lit').naturalWidth?(litReady=true):$('lit').addEventListener('load',()=>{litReady=true;paintTiles(data);if(document.body.classList.contains('revealed'))drawTints(99)});
+ const litLoaded=()=>{litReady=true;if(window.TeamPanes)TeamPanes.prepare($('lit')).catch(e=>console.warn('Team panes unavailable',e));paintTiles(data);if(document.body.classList.contains('revealed'))drawTints(99)};
+ buildLabels();$('lit').complete&&$('lit').naturalWidth?litLoaded():$('lit').addEventListener('load',litLoaded);
 
  refresh();window.addEventListener('resize',()=>{sizeCanvas();fitRose();if(document.body.classList.contains('revealed'))drawTints(99)});const timer=setInterval(refresh,10000);window.addEventListener('beforeunload',()=>{clearInterval(timer);cancelAnimationFrame(frame)});
 })();
