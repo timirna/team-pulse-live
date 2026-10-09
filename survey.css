@@ -55,3 +55,12 @@ main{max-width:1920px}
 .tchip-L::after{left:100%;border-left-color:#d9c07acc;border-right:0}
 .tchip-R::after{right:100%;border-right-color:#d9c07acc;border-left:0}
 .tchip-3{font-size:.56cqw;line-height:.9}
+
+/* round 3 feedback: team names as large as the question names; compact stacked score guide */
+.tchip{width:auto;max-width:11cqw;padding:.25cqw .8cqw;font:600 1.05cqw/1.12 system-ui,sans-serif;border-radius:.4cqw;min-height:0}
+.tchip-3{font-size:1.05cqw;line-height:1.12}
+.qchip{font-size:1.05cqw}
+#legend{align-items:flex-start;gap:1.1cqw;padding:.6cqw 1cqw}
+#legend div{flex-direction:column;align-items:center;gap:.2cqw;font-size:1.05cqw}
+#legend .lrow{display:flex;align-items:center;gap:.5cqw}
+#legend em{font-style:normal;font-size:.92cqw;line-height:1.05;text-align:center;white-space:pre;color:#e9d9ae;min-height:1.6cqw}

@@ -12,10 +12,10 @@
  const AW=1792,AH=1008,pct=(v,d)=>(v/d*100).toFixed(3)+'%';
  // six tall windows + door transom carry the seven scored questions, left to right
  const WIN=[{cx:258,q:0},{cx:419,q:1},{cx:582,q:2},{cx:896,q:3,transom:true},{cx:1214,q:4},{cx:1372,q:5},{cx:1529,q:6}];
- const GLASS={w:70,top:598,h:192},TRANSOM={w:100,top:592,h:40};
- const BAND_TOP=598,BAND_H=192/5;
+ const GLASS={w:80,top:586,h:223},TRANSOM={w:100,top:592,h:40};
+ const BAND_TOP=586,BAND_H=223/5;
  // measured pane rows (glass top 601, bottom 790) and team chip anchors: right edge of the left column, left edge of the right column
- const ROW_TOP=601,ROW_H=189/5,TEAM_CHIP_X=[208,1586];
+ const ROW_TOP=586,ROW_H=223/5,TEAM_CHIP_X=[190,1602];
 
  // ---- sparks ----
  const sparks=document.createElement('div');sparks.id='sparks';
@@ -36,7 +36,7 @@
 
  // ---- reveal video (carries the lighting, the rays and the sound) ----
  const vid=document.createElement('video');
- vid.id='reveal-video';vid.src='assets/chapel-reveal.mp4?v=house8';
+ vid.id='reveal-video';vid.src='assets/chapel-reveal.mp4?v=house10';
  vid.playsInline=true;vid.muted=false;vid.preload='auto';vid.setAttribute('playsinline','');
  vid.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;opacity:0;pointer-events:none;';
  scene.append(vid);
@@ -48,16 +48,16 @@
  // ---- labels on the house: question chips, team names, score legend ----
  function buildLabels(){
   const L=$('labels');L.replaceChildren();
-  WIN.forEach(w=>{const q=cfg.scoredQuestionOrder[w.q],chip=document.createElement('span');chip.className='qchip';chip.style.left=pct(w.cx,AW);chip.style.top=pct(w.transom?566:566,AH);chip.textContent=cfg.columns[q].shortLabel||q;L.append(chip)});
+  WIN.forEach(w=>{const q=cfg.scoredQuestionOrder[w.q],chip=document.createElement('span');chip.className='qchip';chip.style.left=pct(w.cx,AW);chip.style.top=pct(w.transom?566:558,AH);chip.textContent=cfg.columns[q].shortLabel||q;L.append(chip)});
   // team chips on the brick: one column left of the first window, a mirrored column right of the last, centred on each pane row
-  const BR={'Sales & Marketing':'Sales &\nMarketing','Field Services':'Field\nServices','Customer Service & HR':'Customer\nService\n& HR'};
+  const BR={'Customer Service & HR':'Customer Service\n& HR'};
   cfg.teams.forEach((team,i)=>{const nm=team.shortName||team.name;
    [['L',TEAM_CHIP_X[0]],['R',TEAM_CHIP_X[1]]].forEach(([side,x])=>{const t=document.createElement('span');t.className='tchip tchip-'+side;t.style.top=pct(ROW_TOP+(i+.5)*ROW_H,AH);
     if(side==='L')t.style.right=pct(AW-x,AW);else{t.style.left=pct(x,AW);t.setAttribute('aria-hidden','true')}
     t.textContent=BR[nm]||nm;if(t.textContent.split('\n').length>2)t.classList.add('tchip-3');L.append(t)})});
   const lg=document.createElement('div');lg.id='legend';
-  const names={1:'Low confidence',2:'',3:'',4:'',5:'High confidence'};
-  for(let s=1;s<=5;s++){const d=document.createElement('div'),i=document.createElement('i');i.style.background=ColorUtils.scoreToColor(s,cfg);d.append(i,document.createTextNode(s+(names[s]?' – '+names[s]:'')));lg.append(d)}
+  const names={1:'Low\nconfidence',2:'',3:'',4:'',5:'High\nconfidence'};
+  for(let s=1;s<=5;s++){const d=document.createElement('div'),row=document.createElement('span'),i=document.createElement('i'),lab=document.createElement('em');i.style.background=ColorUtils.scoreToColor(s,cfg);row.className='lrow';row.append(i,document.createTextNode(String(s)));lab.textContent=names[s];d.append(row,lab);lg.append(d)}
   L.append(lg);
  }
  // ---- score colours: one stained-glass row per team in every window (door transom: one fan segment per team) ----
@@ -142,7 +142,7 @@
   vid.muted=!soundOn;
   if(useVid){vid.style.opacity='1';vid.currentTime=0;vid.play().catch(()=>{})}
   const duration=reduced?1000:(useVid?12000:6000);
-  const pops=[{t:10000,x:50,y:33.3,n:24},{t:10000,x:50,y:70,n:28}];const fired=pops.map(()=>false);
+  const pops=[{t:9950,x:50,y:33.3,n:60},{t:9950,x:50,y:70,n:50},{t:10000,x:30,y:45,n:30},{t:10000,x:70,y:45,n:30},{t:10450,x:50,y:33.3,n:36},{t:10900,x:50,y:33.3,n:28},{t:10900,x:50,y:70,n:24}];const fired=pops.map(()=>false);
   function tick(now){if(token!==run)return;
    const wall=now-start,vt=useVid&&vid.currentTime>0?vid.currentTime*1000:wall,elapsed=useVid?vt:wall;
    if(!reduced)pops.forEach((p,i)=>{if(!fired[i]&&elapsed>=p.t){fired[i]=true;burst(p.x,p.y,p.n)}});
